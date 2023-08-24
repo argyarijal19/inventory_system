@@ -66,9 +66,9 @@ async def post_inventory_data(inv: InvetoryPostBahan):
 
 
 @inv.put("/update_jahitan/{inv_id}")
-async def put_data_tracking_jahitan(inv_id: str):
+async def put_data_tracking_jahitan(inv: InventoryUpdateProduk, inv_id: str):
     try:
-        update = update_jahitan(inv_id)
+        update = update_jahitan(inv, inv_id)
         if update:
             return success_post_data(True, "Data Berhasil Di Update")
         return post_data_fail("ID inventory tidak ditemukan")

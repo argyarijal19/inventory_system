@@ -46,7 +46,7 @@ async def post_bahan_mentah(bahan: Bahan):
     try:
         post_data = create_bahan(bahan)
         if post_data:
-            return success_post_data("Data Berhasil Disimpan")
+            return success_post_data(post_data, "Data Berhasil Disimpan")
     except IntegrityError:
         return post_data_fail("Id Bahan Tidak Boleh Sama")
 

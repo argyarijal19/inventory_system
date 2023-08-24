@@ -43,11 +43,15 @@ def create_inventory(inv: InvetoryPostBahan):
     return 1
 
 
-def update_jahitan(id_inventry: str):
+def update_jahitan(inv: InventoryUpdateProduk, id_inventry: str):
     conn = orm_sql()
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=id_inventry).first()
     if inventory:
+        inventory.id_ukuran = inv.id_ukuran
+        inventory.harga_produk = inv.harga_produk
+        inventory.nama_produk = inv.nama_produk
+        inventory.qty = inventory.qty + 1
         inventory.status_trc = "1"
         conn.commit()
         return True
@@ -65,16 +69,22 @@ def update_cucian(id_inventry: str):
     return False
 
 
-def update_produk(inv: InventoryUpdateProduk, id_inventry: str):
+def update_produk(id_inventry: str):
     conn = orm_sql()
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=id_inventry).first()
     if inventory:
-        inventory.id_ukuran = inv.id_ukuran
-        inventory.harga_produk = inv.harga_produk
-        inventory.nama_produk = inv.nama_produk
-        inventory.qty = inv.qty
         inventory.status_trc = "3"
+        conn.commit()
+        return True
+    return False
+
+
+def update_qty_with_pos(qty: int, inv_id: int) -> int:
+    conn = orm_sql()
+    inv = conn.query(InventoryMdl).filter_by(id_inv=inv_id).first()
+    if inv:
+        inv.qty = qty
         conn.commit()
         return True
     return False

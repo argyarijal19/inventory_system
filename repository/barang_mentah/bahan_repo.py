@@ -29,7 +29,6 @@ def update_bahan(nama: UpdateBahan, bahan_id: int) -> int:
         bahan.nama_bahan = nama.nama_bahan
         conn.commit()
         return True
-
     return False
 
 
