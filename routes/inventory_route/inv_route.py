@@ -70,8 +70,7 @@ async def put_data_tracking_jahitan(inv: InventoryUpdateProduk, inv_id: str):
     try:
         update = update_jahitan(inv, inv_id)
         if update:
-            return update
-            # return success_post_data(True, "Data Berhasil Di Update")
+            return success_post_data(True, "Data Berhasil Di Update")
         return update
     except IntegrityError:
         return post_data_fail("nama inventory Tidak Boleh Sama atau ukuran tidak valid")
