@@ -8,3 +8,5 @@ Cara menjalankan backend nya adalah
    pip install -r requirements.txt
 4. jalankan backend
    python main.py
+
+**Jangan Lupa DATABASE NYA DI IMPORT DULU**
