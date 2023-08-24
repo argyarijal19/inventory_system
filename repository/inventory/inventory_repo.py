@@ -13,6 +13,15 @@ def get_all_inventory() -> dict:
         return cursor.fetchall()
 
 
+def get_all_produk_jadi() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan WHERE status_trc = '3'"
+        cursor.execute(sql)
+        return cursor.fetchall()
+
+
 def get_inventory_by_id(id_inventory: str) -> dict:
     conn = Db_Mysql()
     with conn:

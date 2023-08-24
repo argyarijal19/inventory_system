@@ -19,6 +19,14 @@ async def get_all_data_inventory() -> dict:
     return get_data_null("tidak ditemukan data bahan")
 
 
+@inv.get("/produk_jadi")
+async def get_all_data_produk_jadi() -> dict:
+    inv = get_all_produk_jadi()
+    if inv:
+        return success_get_data(inv)
+    return get_data_null("tidak ditemukan data bahan")
+
+
 @inv.get("/{id_inv}")
 async def get_data_inventory_by_id(id_inv: str) -> dict:
     inv = get_inventory_by_id(id_inv)
