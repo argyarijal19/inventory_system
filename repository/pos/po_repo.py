@@ -23,6 +23,24 @@ def get_pos_by_id(id_pos: int) -> dict:
         return cursor.fetchone()
 
 
+def penjualan_bulan_ini() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT SUM(total_income) AS total_penjualan FROM pos WHERE tanggal_barang_out >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY);"
+        cursor.execute(sql)
+        return cursor.fetchall()[0]
+
+
+def penjualan_hari_ini() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT SUM(total_income) AS total_penjualan FROM pos WHERE tanggal_barang_out >= DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY);"
+        cursor.execute(sql)
+        return cursor.fetchall()[0]
+
+
 def create_pos(pos: Pos, total_income: int) -> int:
     conn = orm_sql()
     data = PosMdl(

@@ -25,6 +25,24 @@ async def get_data_pos_by_id(id_pos: int):
     return get_data_null("data Point Of Sale tidak ditemukan")
 
 
+@pos.get("/penjualan_bulan_ini/")
+async def get_data_penjualan_bulan_ini():
+    data = penjualan_bulan_ini()
+    if data:
+        total = int(data["total_penjualan"])
+        return success_get_data({"total_penjualan": total})
+    return get_data_null("Penjualan Bulan ini Belum")
+
+
+@pos.get("/penjualan_hari_ini/")
+async def get_data_penjualan_hari_ini():
+    data = penjualan_hari_ini()
+    if data:
+        total = int(data["total_penjualan"])
+        return success_get_data({"total_penjualan": total})
+    return get_data_null("Penjualan Bulan ini Belum")
+
+
 @pos.post("/create_pos")
 async def create_pos_data(pos: Pos):
     data_inv = get_inventory_by_id(pos.id_inv)
