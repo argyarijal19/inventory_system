@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+
 
 Base = declarative_base()
 
@@ -13,3 +15,5 @@ class InventoryMdl(Base):
     harga_produk = Column(Integer)
     qty = Column(Integer)
     status_trc = Column(String(2))
+    tanggal_mulai_jait = Column(DateTime)
+    tanggal_produk_jadi = Column(DateTime)

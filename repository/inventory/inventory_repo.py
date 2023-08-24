@@ -1,4 +1,5 @@
 import pymysql
+import datetime
 from config.database import Db_Mysql, orm_sql
 from schemas.inventory import *
 from models.inventory.inventori_model import *
@@ -8,7 +9,7 @@ def get_all_inventory() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan"
+        sql = "SELECT inventory.id_inv, DATE_FORMAT(inventory.tanggal_mulai_jait, '%d-%m-%Y') as tanggal_jait, DATE_FORMAT(inventory.tanggal_produk_jadi, '%d-%m-%Y') as tanggal_jadi, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan"
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -17,7 +18,7 @@ def get_all_produk_jadi() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan WHERE status_trc = '3'"
+        sql = "SELECT inventory.id_inv, DATE_FORMAT(inventory.tanggal_mulai_jait, '%d-%m-%Y') as tanggal_jait, DATE_FORMAT(inventory.tanggal_produk_jadi, '%d-%m-%Y') as tanggal_jadi, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan WHERE status_trc = '3'"
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -26,7 +27,7 @@ def get_inventory_by_id(id_inventory: str) -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT inventory.id_inv, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan WHERE id_inv = '{id_inventory}'"
+        sql = f"SELECT inventory.id_inv, DATE_FORMAT(inventory.tanggal_mulai_jait, '%d-%m-%Y') as tanggal_jait, DATE_FORMAT(inventory.tanggal_produk_jadi, '%d-%m-%Y') as tanggal_jadi, inventory.id_bahan, inventory.nama_produk, inventory.harga_produk, inventory.qty, inventory.status_trc, bahan.nama_bahan, UPPER(ukuran.nama_ukuran) as ukuran FROM inventory LEFT JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran LEFT JOIN bahan ON bahan.id_bahan=inventory.id_bahan WHERE id_inv = '{id_inventory}'"
         cursor.execute(sql)
         return cursor.fetchone()
 
@@ -57,6 +58,9 @@ def update_jahitan(inv: InventoryUpdateProduk, id_inventry: str):
         if inventory.nama_produk is None:
             inventory.nama_produk = inv.nama_produk
 
+        if inventory.tanggal_mulai_jait is None:
+            inventory.tanggal_mulai_jait = datetime.now()
+
         if inventory.qty is None:
             inventory.qty = 1
         else:
@@ -83,6 +87,7 @@ def update_produk(id_inventry: str):
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=id_inventry).first()
     if inventory:
+        inventory.tanggal_produk_jadi = datetime.now()
         inventory.status_trc = "3"
         conn.commit()
         return True
