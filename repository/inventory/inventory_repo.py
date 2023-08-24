@@ -51,7 +51,7 @@ def update_jahitan(inv: InventoryUpdateProduk, id_inventry: str):
         inventory.id_ukuran = inv.id_ukuran
         inventory.harga_produk = inv.harga_produk
         inventory.nama_produk = inv.nama_produk
-        inventory.qty = inventory.qty + 1
+        inventory.qty = int(inventory.qty) + 1
         inventory.status_trc = "1"
         conn.commit()
         return True
