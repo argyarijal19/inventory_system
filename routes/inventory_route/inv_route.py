@@ -70,10 +70,11 @@ async def put_data_tracking_jahitan(inv: InventoryUpdateProduk, inv_id: str):
     try:
         update = update_jahitan(inv, inv_id)
         if update:
-            return success_post_data(True, "Data Berhasil Di Update")
-        return post_data_fail("ID inventory tidak ditemukan")
+            return update
+            # return success_post_data(True, "Data Berhasil Di Update")
+        return update
     except IntegrityError:
-        return post_data_fail("nama inventory Tidak Boleh Sama")
+        return post_data_fail("nama inventory Tidak Boleh Sama atau ukuran tidak valid")
 
 
 @inv.put("/update_cuci/{inv_id}")
@@ -88,9 +89,9 @@ async def put_data_tracking_cucian(inv_id: str):
 
 
 @inv.put("/update_produk/{inv_id}")
-async def put_data_tracking_gudang(inv: InventoryUpdateProduk,  inv_id: str):
+async def put_data_tracking_gudang(inv_id: str):
     try:
-        update = update_produk(inv, inv_id)
+        update = update_produk(inv_id)
         if update:
             return success_post_data(True, "Data Berhasil Di Update")
         return post_data_fail("ID inventory tidak ditemukan")

@@ -48,13 +48,22 @@ def update_jahitan(inv: InventoryUpdateProduk, id_inventry: str):
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=id_inventry).first()
     if inventory:
-        inventory.id_ukuran = inv.id_ukuran
-        inventory.harga_produk = inv.harga_produk
-        inventory.nama_produk = inv.nama_produk
-        inventory.qty = int(inventory.qty) + 1
+        if inventory.id_ukuran is None:
+            inventory.id_ukuran = inv.id_ukuran
+
+        if inventory.harga_produk is None:
+            inventory.harga_produk = inv.harga_produk
+
+        if inventory.nama_produk is None:
+            inventory.nama_produk = inv.nama_produk
+
+        if inventory.qty is None:
+            inventory.qty = 1
+        else:
+            inventory.qty = int(inventory.qty) + 1
         inventory.status_trc = "1"
         conn.commit()
-        return True
+        return inventory.nama_produk
     return False
 
 
