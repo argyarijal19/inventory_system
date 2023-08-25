@@ -67,26 +67,31 @@ async def post_inventory_data(inv: InvetoryPostBahan):
 
 
 @inv.put("/update_jahitan/{inv_id}")
-async def put_data_tracking_jahitan(inv: InventoryUpdateProduk, inv_id: str):
-    cek_data = get_inventory_by_id(inv_id)
-    if cek_data["status_trc"] == '0' or cek_data["status_trc"] is None:
-        try:
-            update = update_jahitan(inv, inv_id)
-            if update:
-                return success_post_data(True, "Data Berhasil Di Update")
-            return update
-        except IntegrityError:
-            return post_data_fail("nama inventory Tidak Boleh Sama atau ukuran tidak valid")
-    else:
-        return post_data_fail("Produk Sudah melewati tahap ini")
+async def put_data_tracking_jahitan(inv_id: str):
+    # cek_data = get_inventory_by_id(inv_id)
+    try:
+        update = update_jahitan(inv_id)
+        if update:
+            return success_post_data(True, "Data Berhasil Di Update")
+        return update
+    except IntegrityError:
+        return post_data_fail("nama inventory Tidak Boleh Sama atau ukuran tidak valid")
 
 
 @inv.put("/update_cuci/{inv_id}")
 async def put_data_tracking_cucian(inv_id: str):
     cek_data = get_inventory_by_id(inv_id)
-    if cek_data["status_trc"] == '2' or cek_data["status_trc"] == '3' or cek_data["status_trc"] is None:
-        return post_data_fail("Produk Sudah melewati tahap ini atau belum melewati tahap penjaitan")
+    if cek_data["qty_washing"] is None:
+        try:
+            update = update_cucian(inv_id)
+            if update:
+                return success_post_data(True, "Data Berhasil Di Update")
+            return post_data_fail("ID inventory tidak ditemukan")
+        except IntegrityError:
+            return post_data_fail("nama inventory Tidak Boleh Sama")
     else:
+        if int(cek_data["qty_washing"]) >= int(cek_data["qty"]):
+            return post_data_fail("Produk tidak tercatat saat penjahitan")
         try:
             update = update_cucian(inv_id)
             if update:
@@ -99,16 +104,24 @@ async def put_data_tracking_cucian(inv_id: str):
 @inv.put("/update_produk/{inv_id}")
 async def put_data_tracking_gudang(inv_id: str):
     cek_data = get_inventory_by_id(inv_id)
-    # return cek_data
-    if cek_data["status_trc"] == '1' or cek_data["status_trc"] is None:
-        return post_data_fail("Produk Belum boleh melewati tahap ini, atau belum melwati tahap penjaitan dan pencucian")
-    try:
-        update = update_produk(inv_id)
-        if update:
-            return success_post_data(True, "Data Berhasil Di Update")
-        return post_data_fail("ID inventory tidak ditemukan")
-    except IntegrityError:
-        return post_data_fail("ID Ukuran tidak ditemukan")
+    if cek_data["qty_washing"] is None:
+        try:
+            update = update_produk(inv_id)
+            if update:
+                return success_post_data(True, "Data Berhasil Di Update")
+            return post_data_fail("ID inventory tidak ditemukan")
+        except IntegrityError:
+            return post_data_fail("ID Ukuran tidak ditemukan")
+    else:
+        if int(cek_data["qty_final"]) >= int(cek_data["qty_washing"]):
+            return post_data_fail("Produk tidak tercatat saat pencucian")
+        try:
+            update = update_produk(inv_id)
+            if update:
+                return success_post_data(True, "Data Berhasil Di Update")
+            return post_data_fail("ID inventory tidak ditemukan")
+        except IntegrityError:
+            return post_data_fail("ID Ukuran tidak ditemukan")
 
 
 @inv.delete("/del_inv/{id_inv}")

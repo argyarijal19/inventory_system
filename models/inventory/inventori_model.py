@@ -14,6 +14,8 @@ class InventoryMdl(Base):
     nama_produk = Column(String(50))
     harga_produk = Column(Integer)
     qty = Column(Integer)
+    qty_washing = Column(Integer)
+    qty_final = Column(Integer)
     status_trc = Column(String(2))
     tanggal_mulai_jait = Column(DateTime)
     tanggal_produk_jadi = Column(DateTime)
