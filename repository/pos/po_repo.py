@@ -41,6 +41,42 @@ def penjualan_hari_ini() -> dict:
         return cursor.fetchall()[0]
 
 
+def total_penjualan() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT SUM(total_qty) AS total_produk_terjual FROM pos;"
+        cursor.execute(sql)
+        return cursor.fetchall()[0]
+
+
+def total_keuntungan() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT SUM(total_income) AS total_keuntungan FROM pos"
+        cursor.execute(sql)
+        return cursor.fetchall()[0]
+
+
+def total_penjualan_per_bulan() -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = """
+        SELECT 
+            YEAR(tanggal_barang_out) AS tahun, 
+            MONTH(tanggal_barang_out) AS bulan, 
+            SUM(total_qty) AS total_produk_terjual,
+            SUM(total_income) AS total_keuntungan
+        FROM pos
+            GROUP BY YEAR(tanggal_barang_out), MONTH(tanggal_barang_out)
+            ORDER BY tahun, bulan;
+        """
+        cursor.execute(sql)
+        return cursor.fetchall()
+
+
 def create_pos(pos: Pos, total_income: int) -> int:
     conn = orm_sql()
     data = PosMdl(

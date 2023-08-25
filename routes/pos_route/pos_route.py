@@ -26,7 +26,7 @@ async def get_data_pos_by_id(id_pos: int):
 
 
 @pos.get("/penjualan_bulan_ini/")
-async def get_data_penjualan_bulan_ini():
+async def summary_penjualan_bulan_ini():
     data = penjualan_bulan_ini()
     if data:
         total = int(data["total_penjualan"])
@@ -34,12 +34,33 @@ async def get_data_penjualan_bulan_ini():
     return get_data_null("Penjualan Bulan ini Belum")
 
 
-@pos.get("/penjualan_hari_ini/")
-async def get_data_penjualan_hari_ini():
-    data = penjualan_hari_ini()
+@pos.get("/total_penjualan/")
+async def summary_total_penjualan():
+    data = total_penjualan()
     if data:
-        total = int(data["total_penjualan"])
+        total = int(data["total_produk_terjual"])
         return success_get_data({"total_penjualan": total})
+    return get_data_null("Penjualan Bulan ini Belum")
+
+
+@pos.get("/total_pendapatan/")
+async def summary_total_pendapatan():
+    data = total_keuntungan()
+    if data:
+        total = int(data["total_keuntungan"])
+        return success_get_data({"total_penjualan": total})
+    return get_data_null("Penjualan Bulan ini Belum")
+
+
+@pos.get("/total_penjualan_per_bulan/")
+async def summary_total_penjualan_per_bulan():
+    data = total_penjualan_per_bulan()
+    if data:
+        for entry in data:
+            entry["total_produk_terjual"] = float(
+                entry["total_produk_terjual"])
+            entry["total_keuntungan"] = float(entry["total_keuntungan"])
+        return success_get_data(data)
     return get_data_null("Penjualan Bulan ini Belum")
 
 
