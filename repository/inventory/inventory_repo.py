@@ -65,7 +65,7 @@ def update_jahitan(id_inventry: str):
     return False
 
 
-def update_cucian(id_inventry: str):
+def update_cucian(id_inventry: str, status_trc: str):
     conn = orm_sql()
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=id_inventry).first()
@@ -74,26 +74,26 @@ def update_cucian(id_inventry: str):
             inventory.qty_washing = 1
         else:
             inventory.qty_washing = int(inventory.qty_washing) + 1
-        inventory.status_trc = "2"
+        inventory.status_trc = status_trc
         conn.commit()
         return True
     return False
 
 
-def update_produk(id_inventry: str):
-    conn = orm_sql()
-    inventory = conn.query(InventoryMdl).filter_by(
-        id_inv=id_inventry).first()
-    if inventory:
-        if inventory.qty_final is None:
-            inventory.qty_final = 1
-        else:
-            inventory.qty_final = int(inventory.qty_washing) + 1
-        inventory.tanggal_produk_jadi = datetime.now()
-        inventory.status_trc = "3"
-        conn.commit()
-        return True
-    return False
+# def update_produk(id_inventry: str, status_trc: str):
+#     conn = orm_sql()
+#     inventory = conn.query(InventoryMdl).filter_by(
+#         id_inv=id_inventry).first()
+#     if inventory:
+#         if inventory.qty_final is None:
+#             inventory.qty_final = 1
+#         else:
+#             inventory.qty_final = int(inventory.qty_washing) + 1
+#         inventory.tanggal_produk_jadi = datetime.now()
+#         inventory.status_trc = status_trc
+#         conn.commit()
+#         return True
+#     return False
 
 
 def update_qty_with_pos(qty: int, inv_id: int) -> int:
