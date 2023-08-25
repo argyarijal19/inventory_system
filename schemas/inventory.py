@@ -10,3 +10,4 @@ class InventoryUpdateProduk(BaseModel):
     id_ukuran: int
     nama_produk: str
     harga_produk: int
+    qty: int
