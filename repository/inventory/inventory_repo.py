@@ -39,11 +39,11 @@ def create_inventory(inv: InvetoryPostBahan):
     inventory = conn.query(InventoryMdl).filter_by(
         id_inv=inv.id_inventory.upper()).first()
     if inventory:
-        if create_pembuatan(inv.id_inventory.upper(), None):
             inventory.qty = 0
             inventory.qty_washing = 0
             inventory.status_trc = "0"
             conn.commit()
+            create_pembuatan(inv.id_inventory.upper(), None)
             return True
     else:
         data = InventoryMdl(
@@ -56,6 +56,7 @@ def create_inventory(inv: InvetoryPostBahan):
         conn.add(data)
         conn.commit()
         conn.refresh(data)
+        create_pembuatan(inv.id_inventory.upper(), None)
         return True
 
 
@@ -63,7 +64,8 @@ def create_pembuatan(id_inv, qty):
     conn = orm_sql()
     pembuatan = conn.query(func.max(PembuatanMdl.interval_pembuatan)).filter_by(
         id_inv=id_inv).scalar()
-    if pembuatan:
+    records_with_max_interval = conn.query(PembuatanMdl).filter_by(id_inv=id_inv, interval_pembuatan=pembuatan).first()
+    if records_with_max_interval:
         data = PembuatanMdl(
             id_inv=id_inv,
             qty_pembuatan=qty,

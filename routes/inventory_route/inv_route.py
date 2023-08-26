@@ -51,22 +51,24 @@ async def get_data_inventory_by_id(id_inv: str) -> dict:
 async def post_inventory_data(inv: InvetoryPostBahan):
     id_bahan = bahan_by_id(inv.id_bahan)
     if id_bahan:
-        try:
-            pattern = r'^[A-Z]{2}_\d{3}[A-Z]{2}$'
-            if re.match(pattern, inv.id_inventory):
-                chek_data = get_inventory_by_id(inv.id_inventory)
+        # try:
+        pattern = r'^[A-Z]{2}_\d{3}[A-Z]{2}$'
+        if re.match(pattern, inv.id_inventory):
+            chek_data = get_inventory_by_id(inv.id_inventory)
+            if chek_data:
                 if chek_data["status_trc"] != "3":
                     return post_data_fail("Produk tersebut masih dalam proses")
 
-                postdata_inv = create_inventory(inv)
-                if postdata_inv:
-                    return success_post_data(1, "Data Berhasil Disimpan")
-            else:
-                return post_data_fail("ID harus di awali denga 2 huruf kemudian underscorenya kemudian 3 digit angka kemudiaan 2 huruf lagi CONTOH: KM_001PL")
-        except IntegrityError:
-            return post_data_fail("ID inventory tidak boleh sama")
-        except Exception as e:
-            return e
+            postdata_inv = create_inventory(inv)
+            if postdata_inv:
+                return success_post_data(1, "Data Berhasil Disimpan")
+            return postdata_inv
+        else:
+            return post_data_fail("ID harus di awali denga 2 huruf kemudian underscorenya kemudian 3 digit angka kemudiaan 2 huruf lagi CONTOH: KM_001PL")
+        # except IntegrityError:
+        #     return post_data_fail("ID inventory tidak boleh sama")
+        # except Exception as e:
+        #     return e
     return post_data_fail("Data Bahan tidak ditemukan")
 
 
@@ -101,7 +103,8 @@ async def put_data_tracking_cucian(inv_id: str):
             try:
                 update = update_cucian(inv_id, "3")
                 if update:
-                    update_pembuatan_check = update_pembuatan(cek_data["id_inv"], (cek_data["qty_washing"]) + 1)
+                    update_pembuatan_check = update_pembuatan(
+                        cek_data["id_inv"], (cek_data["qty_washing"]) + 1)
                     if update_pembuatan_check:
                         return success_post_data(True, "Data Berhasil Di Update")
                 return post_data_fail("ID inventory tidak ditemukan")
