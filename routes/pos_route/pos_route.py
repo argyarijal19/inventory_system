@@ -69,7 +69,7 @@ async def create_pos_data(pos: Pos):
     data_inv = get_inventory_by_id(pos.id_inv)
     if data_inv:
         total_income = pos.total_qty * data_inv["harga_produk"]
-        result_qty = data_inv["qty"] - pos.total_qty
+        result_qty = data_inv["qty_final"] - pos.total_qty
         if result_qty < 0:
             return post_data_fail("total Quantity melebihi stock nya")
 

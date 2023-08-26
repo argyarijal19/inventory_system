@@ -7,4 +7,3 @@ class InvetoryPostBahan(BaseModel):
     harga_produk: int
     id_inventory: str
     id_bahan: str
-

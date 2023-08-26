@@ -54,6 +54,10 @@ async def post_inventory_data(inv: InvetoryPostBahan):
         try:
             pattern = r'^[A-Z]{2}_\d{3}[A-Z]{2}$'
             if re.match(pattern, inv.id_inventory):
+                chek_data = get_inventory_by_id(inv.id_inventory)
+                if chek_data["status_trc"] != "3":
+                    return post_data_fail("Produk tersebut masih dalam proses")
+
                 postdata_inv = create_inventory(inv)
                 if postdata_inv:
                     return success_post_data(1, "Data Berhasil Disimpan")
@@ -93,16 +97,18 @@ async def put_data_tracking_cucian(inv_id: str):
         if int(cek_data["qty_washing"]) > int(cek_data["qty"]):
             return post_data_fail("Produk tidak tercatat saat penjahitan")
 
-        if int(cek_data["qty_washing"]) == int(cek_data["qty"]) - 1:
+        elif int(cek_data["qty_washing"]) == int(cek_data["qty"]) - 1:
             try:
                 update = update_cucian(inv_id, "3")
                 if update:
-                    return success_post_data(True, "Data Berhasil Di Update")
+                    update_pembuatan_check = update_pembuatan(cek_data["id_inv"], (cek_data["qty_washing"]) + 1)
+                    if update_pembuatan_check:
+                        return success_post_data(True, "Data Berhasil Di Update")
                 return post_data_fail("ID inventory tidak ditemukan")
             except IntegrityError:
                 return post_data_fail("nama inventory Tidak Boleh Sama")
 
-        if int(cek_data["qty_washing"]) < int(cek_data["qty"]):
+        elif int(cek_data["qty_washing"]) < int(cek_data["qty"]):
             try:
                 update = update_cucian(inv_id, cek_data["status_trc"])
                 if update:
@@ -110,7 +116,8 @@ async def put_data_tracking_cucian(inv_id: str):
                 return post_data_fail("ID inventory tidak ditemukan")
             except IntegrityError:
                 return post_data_fail("nama inventory Tidak Boleh Sama")
-
+        else:
+            return post_data_fail("Produk Terleat dari Proses Pencucian")
 
 # @inv.put("/update_produk/{inv_id}")
 # async def put_data_tracking_gudang(inv_id: str):
