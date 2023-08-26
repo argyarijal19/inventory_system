@@ -52,6 +52,7 @@ def create_inventory(inv: InvetoryPostBahan):
             id_ukuran=inv.id_ukuran,
             nama_produk=inv.nama_produk,
             harga_produk=inv.harga_produk,
+            status_trc="0",
         )
         conn.add(data)
         conn.commit()
