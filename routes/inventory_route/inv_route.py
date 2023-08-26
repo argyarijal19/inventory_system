@@ -113,7 +113,7 @@ async def put_data_tracking_cucian(inv_id: str):
 
         elif int(cek_data["qty_washing"]) < int(cek_data["qty"]):
             try:
-                update = update_cucian(inv_id, cek_data["status_trc"])
+                update = update_cucian(inv_id, "2")
                 if update:
                     return success_post_data(True, "Data Berhasil Di Update")
                 return post_data_fail("ID inventory tidak ditemukan")
