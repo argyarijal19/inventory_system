@@ -148,7 +148,7 @@ async def put_data_tracking_cucian(inv_id: str):
 @inv.delete("/del_inv/{id_inv}")
 async def delete_data_inventory(id_inv: str):
     try:
-        data_delete = delete_data_inventory(id_inv)
+        data_delete = delete_inv(id_inv)
         if data_delete:
             return success_get_data("Data Berhasil Dihpaus")
         return get_data_null("ID bahan tidak ditemukan")
