@@ -36,9 +36,43 @@ def penjualan_hari_ini() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT SUM(total_income) AS total_penjualan FROM pos WHERE tanggal_barang_out >= DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY);"
+        sql = "SELECT SUM(total_income) AS total_penjualan FROM pos WHERE DATE(tanggal_barang_out) = CURDATE();"
         cursor.execute(sql)
-        return cursor.fetchall()[0]
+        return cursor.fetchone()
+
+
+def cost_hari_ini():
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = """
+            SELECT 
+                ((total_income_today - total_income_yesterday) / total_income_yesterday) * 100 AS percentage_change 
+            FROM (
+                SELECT 
+                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE()) AS total_income_today,
+                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE() - INTERVAL 1 DAY) AS total_income_yesterday
+            ) AS income_comparison;
+        """
+        cursor.execute(sql)
+        return cursor.fetchone()
+
+
+def cost_bulan_ini():
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = """
+            SELECT 
+                ((total_income_today - total_income_yesterday) / total_income_yesterday) * 100 AS percentage_change 
+            FROM (
+                SELECT 
+                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE()) AS total_income_today,
+                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND DATE(tanggal_barang_out) < CURDATE()) AS total_income_yesterday
+            ) AS income_comparison;
+        """
+        cursor.execute(sql)
+        return cursor.fetchone()
 
 
 def total_penjualan() -> dict:

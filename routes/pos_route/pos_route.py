@@ -25,12 +25,41 @@ async def get_data_pos_by_id(id_pos: int):
     return get_data_null("data Point Of Sale tidak ditemukan")
 
 
-@pos.get("/penjualan_bulan_ini/")
-async def summary_penjualan_bulan_ini():
+@pos.get("/pendapatan_bulan_ini/")
+async def summary_pendapatan_bulan_ini():
     data = penjualan_bulan_ini()
+    cost = cost_bulan_ini()
     if data:
-        total = int(data["total_penjualan"])
-        return success_get_data({"total_penjualan": total})
+        data_penjualan_hari_ini = {}
+        if cost:
+            data_penjualan_hari_ini["cost_bulan_ini"] = float(
+                cost["percentage_change"])
+            data_penjualan_hari_ini["pendapatan_bulan_ini"] = float(
+                data["total_penjualan"])
+        else:
+            data_penjualan_hari_ini["cost_bulan_ini"] = float(0.0)
+            data_penjualan_hari_ini["pendapatan_bulan_ini"] = float(
+                data["total_penjualan"])
+        return success_get_data(data_penjualan_hari_ini)
+    return get_data_null("Penjualan Bulan ini Belum")
+
+
+@pos.get("/pendapatan_hari_ini/")
+async def summary_pendapatan_hari_ini():
+    data = penjualan_hari_ini()
+    cost = cost_hari_ini()
+    if data:
+        data_penjualan_hari_ini = {}
+        if cost:
+            data_penjualan_hari_ini["cost_hari_ini"] = float(
+                cost["percentage_change"])
+            data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
+                data["total_penjualan"])
+        else:
+            data_penjualan_hari_ini["cost_hari_ini"] = float(0.0)
+            data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
+                data["total_penjualan"])
+        return success_get_data(data_penjualan_hari_ini)
     return get_data_null("Penjualan Bulan ini Belum")
 
 
