@@ -24,7 +24,7 @@ async def get_all_data_produk_jadi() -> dict:
     inv = get_all_produk_jadi()
     if inv:
         return success_get_data(inv)
-    return get_data_null("tidak ditemukan data Barang")
+    return get_data_null("tidak ditemukan data Barang yang Sudah selesai")
 
 
 @inv.get("/{id_inv}")

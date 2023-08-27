@@ -11,7 +11,7 @@
  Target Server Version : 100428
  File Encoding         : 65001
 
- Date: 28/08/2023 00:18:13
+ Date: 28/08/2023 03:33:13
 */
 
 SET NAMES utf8mb4;
@@ -53,8 +53,8 @@ CREATE TABLE `inventory`  (
 -- ----------------------------
 -- Records of inventory
 -- ----------------------------
-INSERT INTO `inventory` VALUES ('PM_001KL', 'string', 48, 'Article 1', 20000, 20);
-INSERT INTO `inventory` VALUES ('PM_001KM', 'string', 48, 'Article 1', 20000, 20);
+INSERT INTO `inventory` VALUES ('PM_001LM', 'string', 48, 'Article 1', 50000, NULL);
+INSERT INTO `inventory` VALUES ('PM_002JK', 'string', 48, 'Article 2', 50000, NULL);
 
 -- ----------------------------
 -- Table structure for pembuatan
@@ -67,16 +67,21 @@ CREATE TABLE `pembuatan`  (
   `tanggal_pembuatan` datetime NULL DEFAULT NULL,
   `tanggal_selesai` datetime NULL DEFAULT NULL,
   `qty_pembuatan` int NULL DEFAULT NULL,
-  `status_pembuatan` enum('0','1','2') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1',
+  `status_pembuatan` enum('0','1','2','3') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1',
+  `status_inventory` enum('0','1') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '0',
+  `qty_inventory` int NULL DEFAULT NULL,
   PRIMARY KEY (`id_pembuatan`) USING BTREE,
   INDEX `pembuatan_inv`(`id_inv`) USING BTREE,
   INDEX `id_produksi`(`id_produksi`) USING BTREE,
   CONSTRAINT `pembuatan_inv` FOREIGN KEY (`id_inv`) REFERENCES `inventory` (`id_inv`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 77 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of pembuatan
 -- ----------------------------
+INSERT INTO `pembuatan` VALUES (73, 'PROD_001', 'PM_001LM', '2023-08-27 00:00:00', NULL, 220, '0', '0', NULL);
+INSERT INTO `pembuatan` VALUES (74, 'PROD_001', 'PM_002JK', '2023-08-27 00:00:00', NULL, 20, '0', '0', NULL);
+INSERT INTO `pembuatan` VALUES (76, 'PROD_003', 'PM_001LM', '2023-08-28 00:00:00', NULL, 110, '1', '0', NULL);
 
 -- ----------------------------
 -- Table structure for pos
@@ -112,11 +117,12 @@ CREATE TABLE `tabel_cuci`  (
   INDEX `vendor_cuci`(`id_vendor`) USING BTREE,
   CONSTRAINT `produksi_cuci` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `vendor_cuci` FOREIGN KEY (`id_vendor`) REFERENCES `vendor` (`id_vendor`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tabel_cuci
 -- ----------------------------
+INSERT INTO `tabel_cuci` VALUES (1, 'PROD_001', 2, '2023-08-28 01:18:44', NULL);
 
 -- ----------------------------
 -- Table structure for tabel_jait
@@ -133,11 +139,14 @@ CREATE TABLE `tabel_jait`  (
   INDEX `vendor_jait`(`id_vendor`) USING BTREE,
   CONSTRAINT `produksi_jait` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `vendor_jait` FOREIGN KEY (`id_vendor`) REFERENCES `vendor` (`id_vendor`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tabel_jait
 -- ----------------------------
+INSERT INTO `tabel_jait` VALUES (1, 'PROD_001', 1, '2023-08-28 01:17:42', NULL);
+INSERT INTO `tabel_jait` VALUES (4, 'PROD_003', 1, '2023-08-28 00:00:00', NULL);
+INSERT INTO `tabel_jait` VALUES (5, 'PROD_003', 1, '2023-08-28 00:00:00', NULL);
 
 -- ----------------------------
 -- Table structure for ukuran
@@ -164,10 +173,12 @@ CREATE TABLE `vendor`  (
   `nama_vendor` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `jenis_vendor` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id_vendor`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of vendor
 -- ----------------------------
+INSERT INTO `vendor` VALUES (1, 'vendor jait', 'jaitan');
+INSERT INTO `vendor` VALUES (2, 'vendor cuci', 'cucian');
 
 SET FOREIGN_KEY_CHECKS = 1;

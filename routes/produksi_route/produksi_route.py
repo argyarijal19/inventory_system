@@ -13,8 +13,79 @@ produksi = APIRouter(prefix="/produksi", tags=["Produksi Detail"])
 async def produksi_all_data():
     data = get_produksi()
     if data:
+        # qrcode = Generate_qrcode(data["id_produksi"])
+        # if data["tanggal_selesai"] is not None:
+        #     data_response = {
+        #         "id_produksi": data["id_produksi"],
+        #         "qty_pembuatan": int(data["total_quantitas"]),
+        #         "total_produk_dibuat": int(data["total_produk"]),
+        #         "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
+        #         "tanggal_selesai": datetime.strftime(data["tanggal_selesai"], "%d-%m-%Y"),
+        #         "status_pembuatan": int(data["status_pembuatan"]),
+        #         "qr_code": qrcode
+        #     }
+        # else:
+        #     data_response = {
+        #         "id_produksi": data["id_produksi"],
+        #         "qty_pembuatan": int(data["total_quantitas"]),
+        #         "total_produk_dibuat": int(data["total_produk"]),
+        #         "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
+        #         "tanggal_selesai": None,
+        #         "status_pembuatan": int(data["status_pembuatan"]),
+        #         "qr_code": qrcode
+        #     }
         return success_get_data(data)
     return get_data_null("Data Produksi Belum Ada")
+
+
+@produksi.get("/qrcode/{id_produksi}")
+async def produksi_all_data(id_produksi: str):
+    data = get_id_for_qrcode(id_produksi)
+    if data:
+        qrcode = Generate_qrcode(data["id_produksi"])
+        if data["tanggal_selesai"] is not None:
+            data_response = {
+                "id_produksi": data["id_produksi"],
+                "qty_pembuatan": int(data["total_quantitas"]),
+                "total_produk_dibuat": int(data["total_produk"]),
+                "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
+                "tanggal_selesai": datetime.strftime(data["tanggal_selesai"], "%d-%m-%Y"),
+                "status_pembuatan": int(data["status_pembuatan"]),
+                "qr_code": qrcode
+            }
+        else:
+            data_response = {
+                "id_produksi": data["id_produksi"],
+                "qty_pembuatan": int(data["total_quantitas"]),
+                "total_produk_dibuat": int(data["total_produk"]),
+                "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
+                "tanggal_selesai": None,
+                "status_pembuatan": int(data["status_pembuatan"]),
+                "qr_code": qrcode
+            }
+        return success_get_data(data_response)
+    return get_data_null("Data Produksi Belum Ada")
+
+
+@produksi.get("/{id_produksi}")
+async def get_data_produksi_by_id(id_produksi: str):
+    dataProduksi = get_produksi_by_id(id_produksi)
+    if dataProduksi:
+        return success_get_data(dataProduksi)
+
+    return get_data_null(f"Data Produksi Dengan ID {id_produksi} Tidak di temukan")
+
+
+@produksi.post("/post_jaitan")
+async def post_jaitan_produksi(jait: CreateJaitan):
+    try:
+        post_jaitan = create_jaitan(jait)
+        if post_jaitan:
+            return success_post_data(1, "Berhasil Menambahkan Jaitan")
+
+        return post_data_fail("Gagal Menambahkan jaitan")
+    except IntegrityError:
+        return post_data_fail("ID Vendor tidak ditemukan")
 
 
 @produksi.post("/create_prod")
@@ -23,4 +94,4 @@ async def post_produksi(prod: ProduksiScm):
         data_post = create_produksi(prod)
         return data_post
     except IntegrityError:
-        return post_data_fail("Data ID Produksi Tidak Ditemukan")
+        return post_data_fail("Data ID Produk Tidak Ditemukan")
