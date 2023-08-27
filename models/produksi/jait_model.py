@@ -9,5 +9,5 @@ class JahitMdl(Base):
     id_jait = Column(Integer, primary_key=True)
     id_produksi = Column(String(20))
     id_vendor = Column(Integer)
-    tanggal_jait = Column(DateTime)
-    tanggal_selesai = Column(DateTime)
+    # tanggal_jait = Column(DateTime)
+    # tanggal_selesai = Column(DateTime)

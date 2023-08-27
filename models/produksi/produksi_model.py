@@ -12,6 +12,8 @@ class PembuatanMdl(Base):
     id_produksi = Column(String(20))
     id_inv = Column(String(20))
     qty_pembuatan = Column(Integer)
+    qty_inventory = Column(Integer)
     tanggal_pembuatan = Column(DateTime)
     tanggal_selesai = Column(DateTime)
     status_pembuatan = Column(String(2))
+    status_inventory = Column(String(2))

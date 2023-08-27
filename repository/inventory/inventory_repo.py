@@ -12,7 +12,7 @@ def get_all_inventory() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.nama_produk, pembuatan.status_pembuatan, inventory.qty_final, DATE_FORMAT(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan, DATE_FORMAT(pembuatan.tanggal_selesai, '%d-%m-%Y') AS tanggal_selesai, UPPER(ukuran.nama_ukuran) AS nama_ukuran FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran"
+        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.id_ukuran, inventory.nama_produk, inventory.harga_produk, inventory.qty_final, ukuran.nama_ukuran, bahan.nama_bahan FROM inventory JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran JOIN bahan ON bahan.id_bahan=inventory.id_bahan"
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -21,7 +21,7 @@ def get_all_produk_jadi() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.nama_produk, inventory.qty_final, UPPER(ukuran.nama_ukuran) AS nama_ukuran FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran  WHERE pembuatan.status_pembuatan='2'"
+        sql = "SELECT inventory.id_inv, inventory.nama_produk, inventory.qty_final, UPPER(ukuran.nama_ukuran) AS nama_ukuran FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran  WHERE pembuatan.status_inventory='1'"
         cursor.execute(sql)
         return cursor.fetchall()
 

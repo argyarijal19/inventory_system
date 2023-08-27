@@ -13,27 +13,6 @@ produksi = APIRouter(prefix="/produksi", tags=["Produksi Detail"])
 async def produksi_all_data():
     data = get_produksi()
     if data:
-        # qrcode = Generate_qrcode(data["id_produksi"])
-        # if data["tanggal_selesai"] is not None:
-        #     data_response = {
-        #         "id_produksi": data["id_produksi"],
-        #         "qty_pembuatan": int(data["total_quantitas"]),
-        #         "total_produk_dibuat": int(data["total_produk"]),
-        #         "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
-        #         "tanggal_selesai": datetime.strftime(data["tanggal_selesai"], "%d-%m-%Y"),
-        #         "status_pembuatan": int(data["status_pembuatan"]),
-        #         "qr_code": qrcode
-        #     }
-        # else:
-        #     data_response = {
-        #         "id_produksi": data["id_produksi"],
-        #         "qty_pembuatan": int(data["total_quantitas"]),
-        #         "total_produk_dibuat": int(data["total_produk"]),
-        #         "tanggal_pembuatan": datetime.strftime(data["tanggal_pembuatan"], "%d-%m-%Y"),
-        #         "tanggal_selesai": None,
-        #         "status_pembuatan": int(data["status_pembuatan"]),
-        #         "qr_code": qrcode
-        #     }
         return success_get_data(data)
     return get_data_null("Data Produksi Belum Ada")
 
@@ -88,6 +67,15 @@ async def post_jaitan_produksi(jait: CreateJaitan):
         return post_data_fail("ID Vendor tidak ditemukan")
 
 
+@produksi.put("/update_qty_after_jait/{id_inv}")
+async def put_qty_after_jait(update_qty: UpdateProduksi, id_inv: str):
+    update = updateQtyJaitan(update_qty, id_inv)
+    if update:
+        return update
+
+    return post_data_fail("Data Gagal DI update")
+
+
 @produksi.post("/create_prod")
 async def post_produksi(prod: ProduksiScm):
     try:
@@ -95,3 +83,23 @@ async def post_produksi(prod: ProduksiScm):
         return data_post
     except IntegrityError:
         return post_data_fail("Data ID Produk Tidak Ditemukan")
+
+
+@produksi.put("/create_cucian")
+async def update_data_cuci(cucian: CreateCuci):
+    data_produksi = get_produksi_by_id(cucian.id_produksi)
+    if data_produksi:
+        status_pem = data_produksi["status_pembuatan"]
+        if status_pem == "1":
+            try:
+                update_data = create_cucian(cucian)
+                if update_data:
+                    return success_post_data(1, "Berhasil Update Data")
+
+                return success_post_data(1, "Berhasil Update Cucian")
+            except IntegrityError:
+                return post_data_fail("Data Vendor Tidak Ditemukan")
+        else:
+            return post_data_fail("Produksi Ini belum Melalui Tahap Penjahitan")
+    else:
+        return post_data_fail("ID Produksi Tidak Ditemukan")

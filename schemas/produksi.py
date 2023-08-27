@@ -12,4 +12,13 @@ class ProduksiScm(BaseModel):
 class CreateJaitan(BaseModel):
     id_produksi: str
     id_vendor: int
-    tanggal_jait: str
+
+
+class UpdateProduksi(BaseModel):
+    qty: int
+
+
+class CreateCuci(BaseModel):
+    id_inv: str
+    id_produksi: str
+    id_vendor: int

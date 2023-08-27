@@ -5,6 +5,8 @@ from schemas.produksi import *
 from repository.inventory.inventory_repo import update_qty_with_pos, get_inventory_by_id
 from models.produksi.produksi_model import *
 from models.produksi.jait_model import *
+from models.produksi.cuci_model import *
+from models.inventory.inventori_model import *
 
 
 def get_produksi() -> list:
@@ -51,10 +53,6 @@ def get_produksi_by_id(id_produksi: str) -> list:
                 pembuatan.qty_pembuatan,
                 STR_TO_DATE(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
                 STR_TO_DATE(pembuatan.tanggal_selesai, '%d-%m-%Y') AS selesai_pembuatan,
-                STR_TO_DATE(tabel_jait.tanggal_jait, '%d-%m-%Y') AS tanggal_jait,
-                STR_TO_DATE(tabel_jait.tanggal_selesai, '%d-%m-%Y') AS selesai_jait,
-                STR_TO_DATE(tabel_cuci.tanggal_cuci, '%d-%m-%Y') AS tanggal_cuci,
-                STR_TO_DATE(tabel_cuci.tanggal_selesai, '%d-%m-%Y') AS selesai_cuci,
                 vendor_jait.nama_vendor AS vendor_jait,
                 vendor_cuci.nama_vendor AS vendor_cuci
             FROM pembuatan
@@ -66,7 +64,7 @@ def get_produksi_by_id(id_produksi: str) -> list:
             WHERE pembuatan.id_produksi = '{}';
         """.format(id_produksi)
         cursor.execute(query)
-        return cursor.fetchall()
+        return cursor.fetchone()
 
 
 def create_produksi(prod: ProduksiScm):
@@ -87,10 +85,8 @@ def create_produksi(prod: ProduksiScm):
 
 def create_jaitan(jaitan: CreateJaitan):
     conn = orm_sql()
-    date_object = datetime.strptime(jaitan.tanggal_jait, "%d-%m-%Y")
     data_jaitan = JahitMdl(
         id_produksi=jaitan.id_produksi,
-        tanggal_jait=date_object,
         id_vendor=jaitan.id_vendor,
     )
     conn.add(data_jaitan)
@@ -104,3 +100,56 @@ def create_jaitan(jaitan: CreateJaitan):
         return True
     else:
         return False
+
+
+def create_cucian(cuci: CreateCuci):
+    conn = orm_sql()
+    # date_object = datetime.strptime(cuci.tanggal_selesai, "%d-%m-%Y")
+    data_produksi = conn.query(PembuatanMdl).filter_by(
+        id_inv=cuci.id_inv.upper()).first()
+
+    data_inventory = conn.query(InventoryMdl).filter_by(
+        id_inv=cuci.id_inv.upper()).first()
+    data = CuciMdl(
+        id_produksi=cuci.id_produksi,
+        id_vendor=cuci.id_vendor
+    )
+    conn.add(data)
+    conn.commit()
+    conn.refresh(data)
+
+    if data_produksi:
+        data_produksi.tanggal_selesai = datetime.now()
+        data_produksi.status_pembuatan = "2"
+        data_produksi.status_inventory = "1"
+        if data_produksi.qty_inventory is None:
+            data_produksi.qty_inventory = 1
+        else:
+            data_produksi.qty_inventory = int(
+                data_produksi.qty_inventory) + 1
+
+        if data_produksi.qty_inventory == data_produksi.qty_pembuatan:
+            data_produksi.status_pembuatan = "3"
+
+        if data_inventory:
+            if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
+                data_inventory.qty_final = 1
+            else:
+                data_inventory.qty_final = int(data_inventory.qty_final) + 1
+        conn.commit()
+        return True
+    else:
+        return False
+
+
+def updateQtyJaitan(qty_jait: UpdateProduksi, id_inv: str):
+    conn = orm_sql()
+    data_produksi = conn.query(PembuatanMdl).filter_by(
+        id_inv=id_inv.upper()).first()
+
+    if data_produksi:
+        data_produksi.qty_pembuatan = qty_jait.qty
+        conn.commit()
+        return True
+
+    return True
