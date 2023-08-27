@@ -71,7 +71,7 @@ async def post_jaitan_produksi(jait: CreateJaitan):
 async def put_qty_after_jait(update_qty: UpdateProduksi, id_inv: str):
     update = updateQtyJaitan(update_qty, id_inv)
     if update:
-        return update
+        return success_post_data(1, "Update Data Berhasil")
 
     return post_data_fail("Data Gagal DI update")
 

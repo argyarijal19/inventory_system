@@ -152,4 +152,4 @@ def updateQtyJaitan(qty_jait: UpdateProduksi, id_inv: str):
         conn.commit()
         return True
 
-    return True
+    return False
