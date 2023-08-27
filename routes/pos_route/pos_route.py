@@ -31,9 +31,8 @@ async def summary_pendapatan_bulan_ini():
     cost = cost_bulan_ini()
     if data:
         data_penjualan_hari_ini = {}
-        if cost:
-            data_penjualan_hari_ini["cost_bulan_ini"] = float(
-                cost["percentage_change"])
+        if cost["percentage_change"] is not None:
+            data_penjualan_hari_ini["cost_bulan_ini"] = float("{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_bulan_ini"] = float(
                 data["total_penjualan"])
         else:
@@ -50,13 +49,12 @@ async def summary_pendapatan_hari_ini():
     cost = cost_hari_ini()
     if data:
         data_penjualan_hari_ini = {}
-        if cost:
-            data_penjualan_hari_ini["cost_hari_ini"] = float(
-                cost["percentage_change"])
+        if cost["percentage_change"] is not None:
+            data_penjualan_hari_ini["cost_hari_ini"] = float("{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
                 data["total_penjualan"])
         else:
-            data_penjualan_hari_ini["cost_hari_ini"] = float(0.0)
+            data_penjualan_hari_ini["cost_hari_ini"] = int(0)
             data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
                 data["total_penjualan"])
         return success_get_data(data_penjualan_hari_ini)
