@@ -24,7 +24,7 @@ async def get_all_data_produk_jadi() -> dict:
     inv = get_all_produk_jadi()
     if inv:
         return success_get_data(inv)
-    return get_data_null("tidak ditemukan data bahan")
+    return get_data_null("tidak ditemukan data Barang")
 
 
 @inv.get("/{id_inv}")
@@ -34,13 +34,11 @@ async def get_data_inventory_by_id(id_inv: str) -> dict:
         qrcode = Generate_qrcode(inv["id_inv"])
         response_data = {
             "id_inv": inv["id_inv"],
-            "id_bahan": inv["id_bahan"],
             "nama_produk": inv["nama_produk"],
             "harga_produk": inv["harga_produk"],
-            "qty": inv["qty"],
+            "qty_final": inv["qty_final"],
             "nama_bahan": inv["nama_bahan"],
             "ukuran": inv["ukuran"],
-            "status": inv["status_trc"],
             "qrcode": qrcode
         }
         return success_get_data(response_data)
@@ -51,25 +49,20 @@ async def get_data_inventory_by_id(id_inv: str) -> dict:
 async def post_inventory_data(inv: InvetoryPostBahan):
     id_bahan = bahan_by_id(inv.id_bahan)
     if id_bahan:
-        # try:
-        pattern = r'^[A-Z]{2}_\d{3}[A-Z]{2}$'
-        if re.match(pattern, inv.id_inventory):
-            chek_data = get_inventory_by_id(inv.id_inventory)
-            if chek_data:
-                if chek_data["status_trc"] != "3":
-                    return post_data_fail("Produk tersebut masih dalam proses")
-
-            postdata_inv = create_inventory(inv)
-            if postdata_inv:
-                return success_post_data(1, "Data Berhasil Disimpan")
-            return postdata_inv
-        else:
-            return post_data_fail("ID harus di awali denga 2 huruf kemudian underscorenya kemudian 3 digit angka kemudiaan 2 huruf lagi CONTOH: KM_001PL")
-        # except IntegrityError:
-        #     return post_data_fail("ID inventory tidak boleh sama")
-        # except Exception as e:
-        #     return e
-    return post_data_fail("Data Bahan tidak ditemukan")
+        try:
+            pattern = r'^[A-Z]{2}_\d{3}[A-Z]{2}$'
+            if re.match(pattern, inv.id_inventory):
+                postdata_inv = create_inventory(inv)
+                if postdata_inv:
+                    return success_post_data(1, "Data Berhasil Disimpan")
+                return postdata_inv
+            else:
+                return post_data_fail("ID harus di awali denga 2 huruf kemudian underscorenya kemudian 3 digit angka kemudiaan 2 huruf lagi CONTOH: KM_001PL")
+        except IntegrityError:
+            return post_data_fail("ID inventory tidak boleh sama")
+        except Exception as e:
+            return e
+    return post_data_fail("Data Barang tidak ditemukan")
 
 
 @inv.put("/update_jahitan/{inv_id}")
