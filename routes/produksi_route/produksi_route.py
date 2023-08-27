@@ -15,3 +15,12 @@ async def produksi_all_data():
     if data:
         return success_get_data(data)
     return get_data_null("Data Produksi Belum Ada")
+
+
+@produksi.post("/create_prod")
+async def post_produksi(prod: ProduksiScm):
+    try:
+        data_post = create_produksi(prod)
+        return data_post
+    except IntegrityError:
+        return post_data_fail("Data ID Produksi Tidak Ditemukan")

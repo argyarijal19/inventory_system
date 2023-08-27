@@ -11,7 +11,7 @@
  Target Server Version : 100428
  File Encoding         : 65001
 
- Date: 28/08/2023 00:07:38
+ Date: 28/08/2023 00:18:13
 */
 
 SET NAMES utf8mb4;
@@ -63,7 +63,6 @@ DROP TABLE IF EXISTS `pembuatan`;
 CREATE TABLE `pembuatan`  (
   `id_pembuatan` int NOT NULL AUTO_INCREMENT,
   `id_produksi` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-  `id_vendor` int NULL DEFAULT NULL,
   `id_inv` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   `tanggal_pembuatan` datetime NULL DEFAULT NULL,
   `tanggal_selesai` datetime NULL DEFAULT NULL,
@@ -71,10 +70,8 @@ CREATE TABLE `pembuatan`  (
   `status_pembuatan` enum('0','1','2') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '1',
   PRIMARY KEY (`id_pembuatan`) USING BTREE,
   INDEX `pembuatan_inv`(`id_inv`) USING BTREE,
-  INDEX `vendor_produksi`(`id_vendor`) USING BTREE,
   INDEX `id_produksi`(`id_produksi`) USING BTREE,
-  CONSTRAINT `pembuatan_inv` FOREIGN KEY (`id_inv`) REFERENCES `inventory` (`id_inv`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-  CONSTRAINT `vendor_produksi` FOREIGN KEY (`id_vendor`) REFERENCES `ukuran` (`id_ukuran`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `pembuatan_inv` FOREIGN KEY (`id_inv`) REFERENCES `inventory` (`id_inv`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -107,11 +104,14 @@ DROP TABLE IF EXISTS `tabel_cuci`;
 CREATE TABLE `tabel_cuci`  (
   `id_cucian` int NOT NULL AUTO_INCREMENT,
   `id_produksi` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `id_vendor` int NULL DEFAULT NULL,
   `tanggal_cuci` datetime NULL DEFAULT NULL,
   `tanggal_selesai` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`id_cucian`) USING BTREE,
   INDEX `produksi_cuci`(`id_produksi`) USING BTREE,
-  CONSTRAINT `produksi_cuci` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  INDEX `vendor_cuci`(`id_vendor`) USING BTREE,
+  CONSTRAINT `produksi_cuci` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `vendor_cuci` FOREIGN KEY (`id_vendor`) REFERENCES `vendor` (`id_vendor`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -125,11 +125,14 @@ DROP TABLE IF EXISTS `tabel_jait`;
 CREATE TABLE `tabel_jait`  (
   `id_jait` int NOT NULL AUTO_INCREMENT,
   `id_produksi` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `id_vendor` int NULL DEFAULT NULL,
   `tanggal_jait` datetime NULL DEFAULT NULL,
   `tanggal_selesai` datetime NULL DEFAULT NULL,
   PRIMARY KEY (`id_jait`) USING BTREE,
   INDEX `produksi_jait`(`id_produksi`) USING BTREE,
-  CONSTRAINT `produksi_jait` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  INDEX `vendor_jait`(`id_vendor`) USING BTREE,
+  CONSTRAINT `produksi_jait` FOREIGN KEY (`id_produksi`) REFERENCES `pembuatan` (`id_produksi`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `vendor_jait` FOREIGN KEY (`id_vendor`) REFERENCES `vendor` (`id_vendor`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------

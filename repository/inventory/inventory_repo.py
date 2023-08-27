@@ -12,7 +12,7 @@ def get_all_inventory() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.nama_produk, inventory.qty_final, pembuatan.status_pembuatan,  pembuatan.tanggal_pembuatan, pembuatan.tanggal_selesai, vendor.nama_vendor, vendor.jenis_vendor FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv LEFT JOIN vendor ON vendor.id_vendor=pembuatan.id_vendor"
+        sql = "SELECT inventory.id_inv, inventory.nama_produk, pembuatan.status_pembuatan, inventory.qty_final, pembuatan.tanggal_pembuatan, pembuatan.tanggal_selesai, UPPER(ukuran.nama_ukuran) AS nama_ukuran FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran"
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -21,7 +21,7 @@ def get_all_produk_jadi() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.nama_produk, pembuatan.status_pembuatan, inventory.qty_final, pembuatan.tanggal_pembuatan, pembuatan.tanggal_selesai, UPPER(ukuran.nama_ukuran) FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran  WHERE pembuatan.status_pembuatan='2'"
+        sql = "SELECT inventory.id_inv, inventory.nama_produk, pembuatan.status_pembuatan, pembuatan.status_pembuatan, inventory.qty_final, pembuatan.tanggal_pembuatan, pembuatan.tanggal_selesai, UPPER(ukuran.nama_ukuran) AS nama_ukuran FROM pembuatan RIGHT JOIN inventory ON inventory.id_inv=pembuatan.id_inv JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran  WHERE pembuatan.status_pembuatan='3'"
         cursor.execute(sql)
         return cursor.fetchall()
 
@@ -45,7 +45,6 @@ def create_inventory(inv: InvetoryPostBahan):
         id_ukuran=inv.id_ukuran,
         nama_produk=inv.nama_produk,
         harga_produk=inv.harga_produk,
-        qty_final=inv.qty_final,
     )
     conn.add(data)
     conn.commit()

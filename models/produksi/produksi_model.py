@@ -10,7 +10,7 @@ class PembuatanMdl(Base):
     __tablename__ = "pembuatan"
     id_pembuatan = Column(Integer, primary_key=True)
     id_produksi = Column(String(20))
-    id_vendor = Column(Integer)
+    id_inv = Column(String(20))
     qty_pembuatan = Column(Integer)
     tanggal_pembuatan = Column(DateTime)
     tanggal_selesai = Column(DateTime)

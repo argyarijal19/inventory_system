@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from routes.bahan_mentah_route.bahan_route import bahan
 from routes.bahan_mentah_route.ukuran_route import ukuran
 from routes.pos_route.pos_route import pos
+from routes.produksi_route.produksi_route import produksi
 from routes.inventory_route.inv_route import inv
 from helper.exception import ExceptionHandler
 
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 app.include_router(inv)
+app.include_router(produksi)
 app.include_router(pos)
 app.include_router(bahan)
 app.include_router(ukuran)
