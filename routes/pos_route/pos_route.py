@@ -31,9 +31,8 @@ async def summary_pendapatan_bulan_ini():
     cost = cost_bulan_ini()
     if data:
         data_penjualan_hari_ini = {}
-        if cost:
-            data_penjualan_hari_ini["cost_bulan_ini"] = float(
-                cost["percentage_change"])
+        if cost["percentage_change"] is not None:
+            data_penjualan_hari_ini["cost_bulan_ini"] = float("{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_bulan_ini"] = float(
                 data["total_penjualan"])
         else:
@@ -50,13 +49,12 @@ async def summary_pendapatan_hari_ini():
     cost = cost_hari_ini()
     if data:
         data_penjualan_hari_ini = {}
-        if cost:
-            data_penjualan_hari_ini["cost_hari_ini"] = float(
-                cost["percentage_change"])
+        if cost["percentage_change"] is not None:
+            data_penjualan_hari_ini["cost_hari_ini"] = float("{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
                 data["total_penjualan"])
         else:
-            data_penjualan_hari_ini["cost_hari_ini"] = float(0.0)
+            data_penjualan_hari_ini["cost_hari_ini"] = int(0)
             data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
                 data["total_penjualan"])
         return success_get_data(data_penjualan_hari_ini)
@@ -100,7 +98,10 @@ async def create_pos_data(pos: Pos):
         total_income = pos.total_qty * data_inv["harga_produk"]
         result_qty = data_inv["qty_final"] - pos.total_qty
         if result_qty < 0:
-            return post_data_fail("total Quantity melebihi stock nya")
+            nama_produk = data_inv["nama_produk"]
+            id_produk = data_inv["id_inv"]
+            stok_produk = data_inv["qty_final"]
+            return post_data_fail(f"produk {nama_produk} dengan id {id_produk} hanya memiliki stok sebanyak {stok_produk}, Quantity yang di inpukan melebihi stock nya")
 
         update_qty = update_qty_with_pos(result_qty, pos.id_inv)
         if update_qty:

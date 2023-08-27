@@ -47,7 +47,7 @@ def cost_hari_ini():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         sql = """
             SELECT 
-                ((total_income_today - total_income_yesterday) / total_income_yesterday) * 100 AS percentage_change 
+                ((total_income_today - total_income_yesterday) / total_income_today) * 100 AS percentage_change 
             FROM (
                 SELECT 
                     (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE()) AS total_income_today,
@@ -64,12 +64,12 @@ def cost_bulan_ini():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         sql = """
             SELECT 
-                ((total_income_today - total_income_yesterday) / total_income_yesterday) * 100 AS percentage_change 
+                ((total_income_today - total_income_yesterday) / total_income_today) * 100 AS percentage_change 
             FROM (
                 SELECT 
-                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE()) AS total_income_today,
-                    (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND DATE(tanggal_barang_out) < CURDATE()) AS total_income_yesterday
-            ) AS income_comparison;
+                    (SELECT SUM(total_income) FROM pos WHERE DATE_FORMAT(tanggal_barang_out, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')) AS total_income_today,
+                    (SELECT SUM(total_income) FROM pos WHERE DATE_FORMAT(tanggal_barang_out, '%Y-%m') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 MONTH), '%Y-%m'))AS total_income_yesterday
+            ) A
         """
         cursor.execute(sql)
         return cursor.fetchone()
