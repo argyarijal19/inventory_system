@@ -64,7 +64,7 @@ def get_produksi_by_id(id_produksi: str) -> list:
             WHERE pembuatan.id_produksi = '{}';
         """.format(id_produksi)
         cursor.execute(query)
-        return cursor.fetchone()
+        return cursor.fetchall()
 
 
 def create_produksi(prod: ProduksiScm):

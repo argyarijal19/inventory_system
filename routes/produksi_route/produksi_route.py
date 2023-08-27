@@ -89,7 +89,7 @@ async def post_produksi(prod: ProduksiScm):
 async def update_data_cuci(cucian: CreateCuci):
     data_produksi = get_produksi_by_id(cucian.id_produksi)
     if data_produksi:
-        status_pem = data_produksi["status_pembuatan"]
+        status_pem = data_produksi[0]["status_pembuatan"]
         if status_pem == "2":
             try:
                 update_data = create_cucian(cucian)
