@@ -110,13 +110,18 @@ def create_cucian(cuci: CreateCuci):
 
     data_inventory = conn.query(InventoryMdl).filter_by(
         id_inv=cuci.id_inv.upper()).first()
-    data = CuciMdl(
-        id_produksi=cuci.id_produksi,
-        id_vendor=cuci.id_vendor
-    )
-    conn.add(data)
-    conn.commit()
-    conn.refresh(data)
+
+    data_cuci = conn.query(CuciMdl).filter_by(
+        id_produksi=cuci.id_produksi.upper()).first()
+
+    if data_cuci is None:
+        data = CuciMdl(
+            id_produksi=cuci.id_produksi,
+            id_vendor=cuci.id_vendor
+        )
+        conn.add(data)
+        conn.commit()
+        conn.refresh(data)
 
     if data_produksi:
         data_produksi.tanggal_selesai = datetime.now()
