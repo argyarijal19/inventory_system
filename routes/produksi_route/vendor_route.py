@@ -29,11 +29,14 @@ async def create_vendor_post(ven: CreateVendor):
     try:
         create_data = create_vendor(ven)
         if create_data:
-            return create_data
+            return success_post_data(1, "Vendor Berhasil Dibuat")
 
         return post_data_fail("Gagal Membuat Vendor Data")
     except IntegrityError:
         return post_data_fail("ID tidak Boleh sama")
+
+    except:
+        return post_data_fail("Gagal Membuat Data")
 
 
 @vendor.put("/update_vendor/{id_vendor}")
