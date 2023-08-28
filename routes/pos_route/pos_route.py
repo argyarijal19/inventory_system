@@ -17,9 +17,9 @@ async def get_data_pos_all():
     return get_data_null("data Point Of Sale tidak ditemukan")
 
 
-@pos.get("/{id_pos}")
-async def get_data_pos_by_id(id_pos: int):
-    data = get_pos_by_id(id_pos)
+@pos.get("/{id_inv}")
+async def get_data_pos_by_id(id_inv: str):
+    data = get_pos_by_id(id_inv)
     if data:
         return success_get_data(data)
     return get_data_null("data Point Of Sale tidak ditemukan")
@@ -32,7 +32,8 @@ async def summary_pendapatan_bulan_ini():
     if data:
         data_penjualan_hari_ini = {}
         if cost["percentage_change"] is not None:
-            data_penjualan_hari_ini["cost_bulan_ini"] = float("{:.2f}".format(cost["percentage_change"]))
+            data_penjualan_hari_ini["cost_bulan_ini"] = float(
+                "{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_bulan_ini"] = float(
                 data["total_penjualan"])
         else:
@@ -50,7 +51,8 @@ async def summary_pendapatan_hari_ini():
     if data:
         data_penjualan_hari_ini = {}
         if cost["percentage_change"] is not None:
-            data_penjualan_hari_ini["cost_hari_ini"] = float("{:.2f}".format(cost["percentage_change"]))
+            data_penjualan_hari_ini["cost_hari_ini"] = float(
+                "{:.2f}".format(cost["percentage_change"]))
             data_penjualan_hari_ini["pendapatan_hari_ini"] = float(
                 data["total_penjualan"])
         else:

@@ -19,6 +19,10 @@ class UpdateProduksi(BaseModel):
     qty: int
 
 
+class CreateInventory(BaseModel):
+    id_inv: str
+
+
 class CreateCuci(BaseModel):
     id_produksi: str
     id_vendor: int

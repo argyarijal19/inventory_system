@@ -76,6 +76,18 @@ async def put_qty_after_jait(update_qty: UpdateProduksi, id_inv: str):
     return post_data_fail("Data Gagal DI update")
 
 
+@produksi.put("/update_inventory/")
+async def update_inventory(inv: CreateInventory):
+    try:
+        create_data = create_inventory(inv)
+        if create_data:
+            return success_post_data(1, "Produk Berhasil Masuk Ke gudang")
+        else:
+            return post_data_fail("total kuantitas yang di buat kurang dari total kuantitas yang ingin ditambahkan ke gudang")
+    except:
+        return post_data_fail("data gagal ditambahkan")
+
+
 @produksi.post("/create_prod")
 async def post_produksi(prod: ProduksiScm):
     try:

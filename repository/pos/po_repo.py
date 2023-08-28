@@ -9,18 +9,32 @@ def get_all_pos() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT pos.id_pos, pos.id_inv, pos.total_qty, pos.total_income, inventory.nama_produk, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv"
+        sql = "SELECT COUNT(pos.id_pos) AS total_penjualan, pos.id_inv, SUM(pos.total_qty) AS total_qty, SUM(pos.total_income) AS total_income, inventory.nama_produk, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv GROUP BY pos.id_inv"
         cursor.execute(sql)
-        return cursor.fetchall()
+        results = cursor.fetchall()
+
+        for result in results:
+            if result["total_penjualan"] is not None:
+                result["total_penjualan"] = int(result["total_penjualan"])
+
+            if result["total_qty"] is not None:
+                result["total_qty"] = int(result["total_qty"])
+
+            if result["total_income"] is not None:
+                result["total_income"] = int(result["total_income"])
+
+        return results
 
 
-def get_pos_by_id(id_pos: int) -> dict:
+def get_pos_by_id(id_inv: int) -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT pos.id_pos, pos.id_inv, pos.total_qty, pos.total_income, inventory.nama_produk, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv WHERE id_pos = {id_pos}"
+        sql = f"SELECT pos.id_pos, pos.id_inv, pos.total_qty, pos.total_income, inventory.nama_produk, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv WHERE pos.id_inv = '{id_inv}'"
         cursor.execute(sql)
-        return cursor.fetchone()
+        results = cursor.fetchall()
+
+        return results
 
 
 def penjualan_bulan_ini() -> dict:

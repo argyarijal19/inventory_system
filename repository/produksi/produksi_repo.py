@@ -12,16 +12,20 @@ def get_produksi() -> list:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        query = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan GROUP BY Id_produksi"
+        query = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas,  SUM(qty_inventory) AS total_quantitas_sudah_digudang, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan GROUP BY Id_produksi"
         cursor.execute(query)
         results = cursor.fetchall()
 
         # Convert Decimal values to string
         for result in results:
-            result['total_quantitas'] = str(result['total_quantitas'])
+            result['total_quantitas'] = int(result['total_quantitas'])
             result["tanggal_pembuatan"] = datetime.strftime(
                 result["tanggal_pembuatan"], "%d-%m-%Y")
-
+            if result["total_quantitas_sudah_digudang"] is None:
+                result["total_quantitas_sudah_digudang"] = None
+            else:
+                result["total_quantitas_sudah_digudang"] = int(
+                    result["total_quantitas_sudah_digudang"])
             if result["tanggal_selesai"] is not None:
                 result["tanggal_selesai"] = datetime.strftime(
                     result["tanggal_selesai"], "%d-%m-%Y")
@@ -119,6 +123,37 @@ def create_produksi(prod: ProduksiScm):
 #         return True
 #     else:
 #         return False
+
+def create_inventory(inv: CreateInventory):
+    conn = orm_sql()
+    data_pembuatan = conn.query(PembuatanMdl).filter_by(
+        id_inv=inv.id_inv, status_pembuatan="2").first()
+
+    data_inventory = conn.query(InventoryMdl).filter_by(
+        id_inv=inv.id_inv.upper()).first()
+
+    if data_inventory and data_pembuatan:
+        data_pembuatan.status_inventory = "1"
+        if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
+            data_inventory.qty_final = 1
+        else:
+            data_inventory.qty_final = int(
+                data_inventory.qty_final) + 1
+
+        if data_pembuatan.qty_inventory is not None:
+            data_pembuatan.qty_inventory = int(
+                data_pembuatan.qty_inventory) + 1
+            if data_pembuatan.qty_inventory == data_pembuatan.qty_pembuatan:
+                data_pembuatan.status_pembuatan = "3"
+                data_pembuatan.tanggal_selesai = datetime.now().date()
+
+        else:
+            data_pembuatan.qty_inventory = 1
+
+        conn.commit()
+        return data_pembuatan
+
+    return False
 
 
 def create_cucian(cuci: CreateCuci):
