@@ -45,6 +45,42 @@ async def get_data_inventory_by_id(id_inv: str) -> dict:
     return get_data_null("tidak ditemukan data bahan")
 
 
+@inv.get("/data_cucian/")
+async def get_all_data_cucian():
+    data_cucian = get_barang_cucian()
+    if data_cucian:
+        return success_get_data(data_cucian)
+
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+
+
+@inv.get("/data_cucian_by_id/{id_produksi}")
+async def get_all_data_cucian(id_produksi: str):
+    data_cucian = get_cucian_by_id(id_produksi)
+    if data_cucian:
+        return success_get_data(data_cucian)
+
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+
+
+@inv.get("/data_jaitan/")
+async def get_all_data_jaitan():
+    data_jaitan = get_barang_jaitan()
+    if data_jaitan:
+        return success_get_data(data_jaitan)
+
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+
+
+@inv.get("/data_jaitan_by_id/{id_produksi}")
+async def get_all_data_cucian(id_produksi: str):
+    data_jaitan = get_jaitan_by_id(id_produksi)
+    if data_jaitan:
+        return success_get_data(data_jaitan)
+
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+
+
 @inv.post("/post_inv")
 async def post_inventory_data(inv: InvetoryPostBahan):
     id_bahan = bahan_by_id(inv.id_bahan)

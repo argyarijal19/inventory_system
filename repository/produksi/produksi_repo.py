@@ -40,6 +40,15 @@ def get_id_for_qrcode(id_produksi: str):
         return cursor.fetchone()
 
 
+def get_status_pebuatan(id_inv: str) -> dict:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = f"SELECT id_produksi, status_pembuatan FROM pembuatan WHERE id_produksi = '{id_inv}' GROUP BY Id_produksi "
+        cursor.execute(sql)
+        return cursor.fetchone()
+
+
 def get_produksi_by_id(id_produksi: str) -> list:
     conn = Db_Mysql()
     with conn:
@@ -114,11 +123,11 @@ def create_cucian(cuci: CreateCuci):
         id_inv=cuci.id_inv.upper()).first()
 
     data_cuci = conn.query(CuciMdl).filter_by(
-        id_produksi=cuci.id_produksi.upper()).first()
+        id_produksi=data_produksi.id_produksi.upper()).first()
 
     if data_cuci is None:
         data = CuciMdl(
-            id_produksi=cuci.id_produksi,
+            id_produksi=data_produksi.id_produksi,
             id_vendor=cuci.id_vendor
         )
         conn.add(data)
