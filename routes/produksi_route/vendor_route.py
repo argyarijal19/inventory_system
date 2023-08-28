@@ -24,14 +24,11 @@ async def get_vendor_data_by_id(id_vendor: int):
     return get_data_null(f"Data Dengan ID {id_vendor} Tidak Ditemukan")
 
 
-@vendor.post("/create_vendor")
+@vendor.post("/create_vendor/")
 async def create_vendor_post(ven: CreateVendor):
     try:
         create_data = create_vendor(ven)
-        if create_data:
-            return success_post_data(1, "Vendor Berhasil Dibuat")
-        else:
-            return post_data_fail("Gagal Membuat Vendor Data")
+        return create_data
     except IntegrityError:
         return post_data_fail("ID tidak Boleh sama")
 
