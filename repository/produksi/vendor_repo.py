@@ -30,7 +30,7 @@ def create_vendor(ven: CreateVendor):
     )
     conn.add(data)
     conn.commit()
-    conn.refresh()
+    conn.refresh(data)
     return True
 
 
