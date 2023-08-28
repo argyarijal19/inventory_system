@@ -55,16 +55,16 @@ async def get_data_produksi_by_id(id_produksi: str):
     return get_data_null(f"Data Produksi Dengan ID {id_produksi} Tidak di temukan")
 
 
-@produksi.post("/post_jaitan")
-async def post_jaitan_produksi(jait: CreateJaitan):
-    try:
-        post_jaitan = create_jaitan(jait)
-        if post_jaitan:
-            return success_post_data(1, "Berhasil Menambahkan Jaitan")
+# @produksi.post("/post_jaitan")
+# async def post_jaitan_produksi(jait: CreateJaitan):
+#     try:
+#         post_jaitan = create_jaitan(jait)
+#         if post_jaitan:
+#             return success_post_data(1, "Berhasil Menambahkan Jaitan")
 
-        return post_data_fail("Gagal Menambahkan jaitan")
-    except IntegrityError:
-        return post_data_fail("ID Vendor tidak ditemukan")
+#         return post_data_fail("Gagal Menambahkan jaitan")
+#     except IntegrityError:
+#         return post_data_fail("ID Vendor tidak ditemukan")
 
 
 @produksi.put("/update_qty_after_jait/{id_inv}")
@@ -90,7 +90,7 @@ async def update_data_cuci(cucian: CreateCuci):
     data_produksi = get_produksi_by_id(cucian.id_produksi)
     if data_produksi:
         status_pem = data_produksi[0]["status_pembuatan"]
-        if status_pem == "2":
+        if status_pem == "1":
             try:
                 update_data = create_cucian(cucian)
                 if update_data:

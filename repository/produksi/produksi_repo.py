@@ -86,48 +86,56 @@ def create_produksi(prod: ProduksiScm):
         id_inv=prod.id_inv,
         tanggal_pembuatan=date_object,
         qty_pembuatan=prod.qty_pembuatan,
-        status_pembuatan='0'
+        status_pembuatan='1'
     )
     conn.add(data)
     conn.commit()
     conn.refresh(data)
-    return True
 
-
-def create_jaitan(jaitan: CreateJaitan):
-    conn = orm_sql()
     data_jaitan = JahitMdl(
-        id_produksi=jaitan.id_produksi,
-        id_vendor=jaitan.id_vendor,
+        id_produksi=prod.id_produksi,
+        id_vendor=prod.id_vendor,
     )
     conn.add(data_jaitan)
     conn.commit()
     conn.refresh(data_jaitan)
-    data_produksi = conn.query(PembuatanMdl).filter_by(
-        id_produksi=jaitan.id_produksi.upper()).first()
-    if data_produksi:
-        data_produksi.status_pembuatan = "1"
-        conn.commit()
-        return True
-    else:
-        return False
+    return True
+
+
+# def create_jaitan(jaitan: CreateJaitan):
+#     conn = orm_sql()
+#     data_jaitan = JahitMdl(
+#         id_produksi=jaitan.id_produksi,
+#         id_vendor=jaitan.id_vendor,
+#     )
+#     conn.add(data_jaitan)
+#     conn.commit()
+#     conn.refresh(data_jaitan)
+#     data_produksi = conn.query(PembuatanMdl).filter_by(
+#         id_produksi=jaitan.id_produksi.upper()).first()
+#     if data_produksi:
+#         data_produksi.status_pembuatan = "1"
+#         conn.commit()
+#         return True
+#     else:
+#         return False
 
 
 def create_cucian(cuci: CreateCuci):
     conn = orm_sql()
     # date_object = datetime.strptime(cuci.tanggal_selesai, "%d-%m-%Y")
     data_produksi = conn.query(PembuatanMdl).filter_by(
-        id_inv=cuci.id_inv.upper()).first()
+        id_produksi=cuci.id_produksi.upper()).first()
 
-    data_inventory = conn.query(InventoryMdl).filter_by(
-        id_inv=cuci.id_inv.upper()).first()
+    # data_inventory = conn.query(InventoryMdl).filter_by(
+    #     id_inv=cuci.id_inv.upper()).first()
 
     data_cuci = conn.query(CuciMdl).filter_by(
-        id_produksi=data_produksi.id_produksi.upper()).first()
+        id_produksi=cuci.id_produksi.upper()).first()
 
     if data_cuci is None:
         data = CuciMdl(
-            id_produksi=data_produksi.id_produksi,
+            id_produksi=cuci.id_produksi,
             id_vendor=cuci.id_vendor
         )
         conn.add(data)
@@ -135,23 +143,23 @@ def create_cucian(cuci: CreateCuci):
         conn.refresh(data)
 
     if data_produksi:
-        data_produksi.tanggal_selesai = datetime.now()
+        #     data_produksi.tanggal_selesai = datetime.now()
         data_produksi.status_pembuatan = "2"
-        data_produksi.status_inventory = "1"
-        if data_produksi.qty_inventory is None:
-            data_produksi.qty_inventory = 1
-        else:
-            data_produksi.qty_inventory = int(
-                data_produksi.qty_inventory) + 1
+    #     # data_produksi.status_inventory = "1"
+    #     # if data_produksi.qty_inventory is None:
+    #     #     data_produksi.qty_inventory = 1
+    #     # else:
+    #     #     data_produksi.qty_inventory = int(
+    #     #         data_produksi.qty_inventory) + 1
 
-        if data_produksi.qty_inventory == data_produksi.qty_pembuatan:
-            data_produksi.status_pembuatan = "3"
+    #     if data_produksi.qty_inventory == data_produksi.qty_pembuatan:
+    #         data_produksi.status_pembuatan = "3"
 
-        if data_inventory:
-            if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
-                data_inventory.qty_final = 1
-            else:
-                data_inventory.qty_final = int(data_inventory.qty_final) + 1
+    #     if data_inventory:
+    #         if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
+    #             data_inventory.qty_final = 1
+    #         else:
+    #             data_inventory.qty_final = int(data_inventory.qty_final) + 1
         conn.commit()
         return True
     else:

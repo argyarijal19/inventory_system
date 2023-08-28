@@ -4,6 +4,7 @@ from datetime import datetime
 
 class ProduksiScm(BaseModel):
     id_produksi: str
+    id_vendor: int
     id_inv: str
     qty_pembuatan: int
     tanggal_pembuatan: str
@@ -19,7 +20,6 @@ class UpdateProduksi(BaseModel):
 
 
 class CreateCuci(BaseModel):
-    id_inv: str
     id_produksi: str
     id_vendor: int
 

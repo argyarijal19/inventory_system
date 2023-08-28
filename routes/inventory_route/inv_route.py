@@ -69,7 +69,7 @@ async def get_all_data_jaitan():
     if data_jaitan:
         return success_get_data(data_jaitan)
 
-    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Penjahitan")
 
 
 @inv.get("/data_jaitan_by_id/{id_produksi}")
@@ -78,7 +78,7 @@ async def get_all_data_cucian(id_produksi: str):
     if data_jaitan:
         return success_get_data(data_jaitan)
 
-    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap Pencucian")
+    return get_data_null("Tidak Ada Produksi")
 
 
 @inv.post("/post_inv")
