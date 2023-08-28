@@ -30,8 +30,8 @@ async def create_vendor_post(ven: CreateVendor):
         create_data = create_vendor(ven)
         if create_data:
             return success_post_data(1, "Vendor Berhasil Dibuat")
-
-        return post_data_fail("Gagal Membuat Vendor Data")
+        else:
+            return post_data_fail("Gagal Membuat Vendor Data")
     except IntegrityError:
         return post_data_fail("ID tidak Boleh sama")
 
