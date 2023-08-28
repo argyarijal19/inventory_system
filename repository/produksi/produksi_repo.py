@@ -51,12 +51,14 @@ def get_produksi_by_id(id_produksi: str) -> list:
                 inventory.nama_produk,
                 pembuatan.status_pembuatan,
                 pembuatan.qty_pembuatan,
+                UPPER(ukuran.nama_ukuran) AS nama_ukuran,
                 STR_TO_DATE(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
                 STR_TO_DATE(pembuatan.tanggal_selesai, '%d-%m-%Y') AS selesai_pembuatan,
                 vendor_jait.nama_vendor AS vendor_jait,
                 vendor_cuci.nama_vendor AS vendor_cuci
             FROM pembuatan
             JOIN inventory ON inventory.id_inv = pembuatan.id_inv
+            LEFT JOIN ukuran ON inventory.id_ukuran = ukuran.id_ukuran
             LEFT JOIN tabel_jait ON tabel_jait.id_produksi = pembuatan.id_produksi
             LEFT JOIN tabel_cuci ON tabel_cuci.id_produksi = pembuatan.id_produksi
             LEFT JOIN vendor AS vendor_jait ON vendor_jait.id_vendor = tabel_jait.id_vendor
