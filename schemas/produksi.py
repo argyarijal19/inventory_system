@@ -22,3 +22,8 @@ class CreateCuci(BaseModel):
     id_inv: str
     id_produksi: str
     id_vendor: int
+
+
+class CreateVendor(BaseModel):
+    nama_vendor: str
+    jenis_vendor: str

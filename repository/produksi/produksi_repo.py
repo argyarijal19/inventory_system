@@ -2,7 +2,6 @@ import pymysql
 import json
 from config.database import Db_Mysql, orm_sql
 from schemas.produksi import *
-from repository.inventory.inventory_repo import update_qty_with_pos, get_inventory_by_id
 from models.produksi.produksi_model import *
 from models.produksi.jait_model import *
 from models.produksi.cuci_model import *
