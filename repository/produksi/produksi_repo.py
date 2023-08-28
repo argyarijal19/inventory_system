@@ -47,6 +47,7 @@ def get_produksi_by_id(id_produksi: str) -> list:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         query = """
             SELECT
+                inventory.id_inv,
                 pembuatan.id_produksi,
                 inventory.nama_produk,
                 pembuatan.status_pembuatan,

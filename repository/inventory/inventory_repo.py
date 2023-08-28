@@ -124,6 +124,17 @@ def update_cucian(id_inventry: str):
     return False
 
 
+def update_inventory(prod: UpdateInventory, id_inventory: int):
+    conn = orm_sql()
+    data_exist = conn.query(InventoryMdl).filter_by(
+        id_inv=id_inventory).first()
+
+    if data_exist:
+        data_exist.harga_produk = prod.harga_produk
+        data_exist.nama_produk = prod.nama_produk
+        conn.commit()
+        return True
+
 # def update_produk(id_inventry: str, status_trc: str):
 #     conn = orm_sql()
 #     inventory = conn.query(InventoryMdl).filter_by(

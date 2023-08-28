@@ -115,6 +115,17 @@ async def put_data_tracking_cucian(inv_id: str):
         else:
             return post_data_fail("Produk Terleat dari Proses Pencucian")
 
+
+@inv.put("/update_barang/{id_inventory}")
+async def update_barang_inventory(prod: UpdateInventory, id_inventory: str):
+    try:
+        update_data = update_inventory(prod, id_inventory)
+        if update_data:
+            return success_post_data(1, "Berhasil Update Data")
+
+        return post_data_fail("Data Gagal Di Update, ID Barang Tidak ditemukan")
+    except:
+        return post_data_fail("Data Gagal Di Update")
 # @inv.put("/update_produk/{inv_id}")
 # async def put_data_tracking_gudang(inv_id: str):
 #     cek_data = get_inventory_by_id(inv_id)
