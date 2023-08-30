@@ -18,7 +18,7 @@ def hash_password(password):
 
 def check_password(password, hashed_password):
     # Check if the provided password matches the hashed password
-    string_encode = password.encode()
+    string_encode = password.encode('utf-8')
     check = bcrypt.checkpw(string_encode, hashed_password)
     return check
 
@@ -58,15 +58,23 @@ def login(user: Login) -> dict:
     data_user = conn.query(UserMdl).filter_by(username=user.username).first()
     results = {}
     if data_user:
-        verify_pass = check_password(user.password, data_user.password)
+        verify_pass = check_password(
+            user.password, data_user.password.encode('utf-8'))
         if verify_pass:
             results = {
+                "message": None,
                 "username": data_user.username,
                 "nama_lengkap": data_user.nama_lengkap,
                 "id_user": data_user.id_user
             }
             return results
         else:
+            results = {
+                "message": "Password Tidak Valid"
+            }
             return results
     else:
+        results = {
+            "message": "Username Tidak Valid"
+        }
         return results

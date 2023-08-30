@@ -32,4 +32,12 @@ async def register_user(user: Register):
 
 @auth.post("/login/")
 async def login_user(log: Login):
-    return login(log)
+    data = login(log)
+    if data["message"]:
+        return get_data_null(data["message"])
+    userInfo = {
+        "username": data["username"],
+        "id_user": data["id_user"],
+        "nama_lengkap": data["nama_lengkap"]
+    }
+    return success_get_data(userInfo)
