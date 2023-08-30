@@ -40,7 +40,22 @@ def get_id_for_qrcode(id_produksi: str):
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan WHERE id_produksi = '{id_produksi}' GROUP BY Id_produksi "
+        sql = """
+            SELECT id_produksi, 
+                COUNT(pembuatan.id_inv) AS total_produk, 
+                GROUP_CONCAT(DISTINCT pembuatan.id_inv ORDER BY pembuatan.id_inv SEPARATOR ', ') AS id_inv_array,
+                GROUP_CONCAT(DISTINCT inventory.nama_produk ORDER BY inventory.id_inv SEPARATOR ', ') AS nama_produk,
+                GROUP_CONCAT(DISTINCT ukuran.nama_ukuran ORDER BY inventory.id_inv SEPARATOR ', ') AS ukuran,
+                GROUP_CONCAT(DISTINCT pembuatan.qty_pembuatan ORDER BY inventory.id_inv SEPARATOR ', ') AS qty_pembuatan,
+                SUM(qty_pembuatan) AS total_quantitas, 
+                pembuatan.tanggal_pembuatan, 
+                pembuatan.tanggal_selesai, 
+                pembuatan.status_pembuatan 
+            FROM pembuatan 
+            JOIN inventory ON inventory.id_inv = pembuatan.id_inv
+            JOIN ukuran ON inventory.id_ukuran = ukuran.id_ukuran
+            WHERE id_produksi = '{}'
+        """.format(id_produksi)
         cursor.execute(sql)
         return cursor.fetchone()
 
