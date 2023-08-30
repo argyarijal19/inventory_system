@@ -1,5 +1,6 @@
 import pymysql
 import json
+from sqlalchemy import update
 from config.database import Db_Mysql, orm_sql
 from schemas.produksi import *
 from models.produksi.produksi_model import *
@@ -48,7 +49,7 @@ def get_status_pebuatan(id_inv: str) -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT id_produksi, status_pembuatan FROM pembuatan WHERE id_produksi = '{id_inv}' GROUP BY Id_produksi "
+        sql = f"SELECT id_produksi, status_pembuatan FROM pembuatan WHERE id_inv = '{id_inv}' AND status_pembuatan = '2'"
         cursor.execute(sql)
         return cursor.fetchone()
 
@@ -84,25 +85,38 @@ def get_produksi_by_id(id_produksi: str) -> list:
 
 def create_produksi(prod: ProduksiScm):
     conn = orm_sql()
-    date_object = datetime.strptime(prod.tanggal_pembuatan, "%d-%m-%Y")
-    data = PembuatanMdl(
-        id_produksi=prod.id_produksi,
-        id_inv=prod.id_inv,
-        tanggal_pembuatan=date_object,
-        qty_pembuatan=prod.qty_pembuatan,
-        status_pembuatan='1'
-    )
-    conn.add(data)
-    conn.commit()
-    conn.refresh(data)
 
-    data_jaitan = JahitMdl(
-        id_produksi=prod.id_produksi,
-        id_vendor=prod.id_vendor,
-    )
-    conn.add(data_jaitan)
-    conn.commit()
-    conn.refresh(data_jaitan)
+    date_object = datetime.strptime(prod.tanggal_pembuatan, "%d-%m-%Y")
+    data_jahitan = conn.query(JahitMdl).filter_by(
+        id_produksi=prod.id_produksi).first()
+
+    data_produksi = conn.query(PembuatanMdl).filter_by(
+        id_produksi=prod.id_produksi, id_inv=prod.id_inv).first()
+
+    if data_produksi is None:
+        data = PembuatanMdl(
+            id_produksi=prod.id_produksi,
+            id_inv=prod.id_inv,
+            tanggal_pembuatan=date_object,
+            qty_pembuatan=prod.qty_pembuatan,
+            status_pembuatan='1'
+        )
+        conn.add(data)
+        conn.commit()
+        conn.refresh(data)
+    else:
+        data_produksi.qty_pembuatan = int(
+            data_produksi.qty_pembuatan) + prod.qty_pembuatan
+        conn.commit()
+
+    if data_jahitan is None:
+        data_jaitan = JahitMdl(
+            id_produksi=prod.id_produksi,
+            id_vendor=prod.id_vendor,
+        )
+        conn.add(data_jaitan)
+        conn.commit()
+        conn.refresh(data_jaitan)
     return True
 
 
@@ -158,12 +172,9 @@ def create_inventory(inv: CreateInventory):
 
 def create_cucian(cuci: CreateCuci):
     conn = orm_sql()
-    # date_object = datetime.strptime(cuci.tanggal_selesai, "%d-%m-%Y")
-    data_produksi = conn.query(PembuatanMdl).filter_by(
-        id_produksi=cuci.id_produksi.upper()).first()
 
-    # data_inventory = conn.query(InventoryMdl).filter_by(
-    #     id_inv=cuci.id_inv.upper()).first()
+    data_produksi = conn.query(PembuatanMdl).filter(
+        PembuatanMdl.id_produksi == cuci.id_produksi.upper()).all()
 
     data_cuci = conn.query(CuciMdl).filter_by(
         id_produksi=cuci.id_produksi.upper()).first()
@@ -178,23 +189,9 @@ def create_cucian(cuci: CreateCuci):
         conn.refresh(data)
 
     if data_produksi:
-        #     data_produksi.tanggal_selesai = datetime.now()
-        data_produksi.status_pembuatan = "2"
-    #     # data_produksi.status_inventory = "1"
-    #     # if data_produksi.qty_inventory is None:
-    #     #     data_produksi.qty_inventory = 1
-    #     # else:
-    #     #     data_produksi.qty_inventory = int(
-    #     #         data_produksi.qty_inventory) + 1
-
-    #     if data_produksi.qty_inventory == data_produksi.qty_pembuatan:
-    #         data_produksi.status_pembuatan = "3"
-
-    #     if data_inventory:
-    #         if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
-    #             data_inventory.qty_final = 1
-    #         else:
-    #             data_inventory.qty_final = int(data_inventory.qty_final) + 1
+        stmt = update(PembuatanMdl).where(PembuatanMdl.id_produksi ==
+                                          cuci.id_produksi).values(status_pembuatan="2")
+        conn.execute(stmt)
         conn.commit()
         return True
     else:
@@ -204,7 +201,7 @@ def create_cucian(cuci: CreateCuci):
 def updateQtyJaitan(qty_jait: UpdateProduksi, id_inv: str):
     conn = orm_sql()
     data_produksi = conn.query(PembuatanMdl).filter_by(
-        id_inv=id_inv.upper()).first()
+        id_inv=id_inv.upper(), id_produksi=qty_jait.id_produksi).first()
 
     if data_produksi:
         data_produksi.qty_pembuatan = qty_jait.qty

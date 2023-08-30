@@ -79,11 +79,15 @@ async def put_qty_after_jait(update_qty: UpdateProduksi, id_inv: str):
 @produksi.put("/update_inventory/")
 async def update_inventory(inv: CreateInventory):
     try:
-        create_data = create_inventory(inv)
-        if create_data:
-            return success_post_data(1, "Produk Berhasil Masuk Ke gudang")
+        status_pem = get_status_pebuatan(inv.id_inv)
+        if status_pem is not None:
+            create_data = create_inventory(inv)
+            if create_data:
+                return success_post_data(1, "Produk Berhasil Masuk Ke gudang")
+            else:
+                return post_data_fail("total kuantitas yang di buat kurang dari total kuantitas yang ingin ditambahkan ke gudang")
         else:
-            return post_data_fail("total kuantitas yang di buat kurang dari total kuantitas yang ingin ditambahkan ke gudang")
+            return post_data_fail("Produk ini Belum Melakukan Tahap Pencucian atau tahap penjahitan")
     except:
         return post_data_fail("data gagal ditambahkan")
 
@@ -92,7 +96,10 @@ async def update_inventory(inv: CreateInventory):
 async def post_produksi(prod: ProduksiScm):
     try:
         data_post = create_produksi(prod)
-        return data_post
+        if data_post:
+            return success_post_data(data_post, "berhasil post Data")
+
+        return post_data_fail("Gagal Post Data")
     except IntegrityError:
         return post_data_fail("Data ID Produk Tidak Ditemukan")
 

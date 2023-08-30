@@ -17,6 +17,7 @@ class CreateJaitan(BaseModel):
 
 class UpdateProduksi(BaseModel):
     qty: int
+    id_produksi: str
 
 
 class CreateInventory(BaseModel):

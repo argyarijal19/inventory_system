@@ -9,6 +9,7 @@ from routes.pos_route.pos_route import pos
 from routes.produksi_route.produksi_route import produksi
 from routes.produksi_route.vendor_route import vendor
 from routes.inventory_route.inv_route import inv
+from routes.user_route import auth
 from helper.exception import ExceptionHandler
 
 load_dotenv()
@@ -26,6 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth)
 app.include_router(inv)
 app.include_router(produksi)
 app.include_router(pos)
