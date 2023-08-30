@@ -6,7 +6,7 @@ from schemas.user import *
 from models.user_model import UserMdl
 
 
-def hash_password(password):
+def hash_password(password) -> str:
     # Generate salt
     salt = bcrypt.gensalt()
 
@@ -16,14 +16,22 @@ def hash_password(password):
     return hashed_password
 
 
-def check_password(password, hashed_password):
+def check_password(password, hashed_password) -> bool:
     # Check if the provided password matches the hashed password
     string_encode = password.encode('utf-8')
     check = bcrypt.checkpw(string_encode, hashed_password)
     return check
 
 
-def generate_unique_id(username, full_name):
+def get_user() -> list:
+    conn = Db_Mysql()
+    cursor = conn.cursor(pymysql.cursors.DictCursor)
+    query = "SELECT id_user, nama_lengkap, username FROM users"
+    cursor.execute(query)
+    return cursor.fetchall()
+
+
+def generate_unique_id(username, full_name) -> str:
     # Menggabungkan username dan nama lengkap
     combined_string = username + full_name
 

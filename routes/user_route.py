@@ -4,7 +4,16 @@ from schemas.user import *
 from repository.user_repo import *
 from helper.response import *
 
-auth = APIRouter(prefix="/user", tags=["AUYHENTICATION Detail"])
+auth = APIRouter(prefix="/user", tags=["AUTHENTICATION Detail"])
+
+
+@auth.get("/")
+async def get_data_all_user():
+    data_user = get_user()
+    if data_user:
+        return success_get_data(data_user)
+
+    return get_data_null("Tidak ada users yang terdaftar")
 
 
 @auth.post("/register/")
