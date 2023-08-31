@@ -202,6 +202,34 @@ def get_qc_by_id(produksi_id: str) -> list:
         return cursor.fetchall()
 
 
+def get_qc_select() -> list:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        query = """
+            SELECT
+                inventory.id_inv,
+                pembuatan.id_produksi,
+                inventory.nama_produk,
+                pembuatan.status_pembuatan,
+                pembuatan.qty_pembuatan,
+                UPPER(ukuran.nama_ukuran) AS nama_ukuran,
+                DATE_FORMAT(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
+                vendor_jait.nama_vendor AS vendor_jait,
+                vendor_cuci.nama_vendor AS vendor_cuci
+            FROM pembuatan
+            JOIN inventory ON inventory.id_inv = pembuatan.id_inv
+            LEFT JOIN ukuran ON inventory.id_ukuran = ukuran.id_ukuran
+            LEFT JOIN tabel_jait ON tabel_jait.id_produksi = pembuatan.id_produksi
+            LEFT JOIN tabel_cuci ON tabel_cuci.id_produksi = pembuatan.id_produksi
+            LEFT JOIN vendor AS vendor_jait ON vendor_jait.id_vendor = tabel_jait.id_vendor
+            LEFT JOIN vendor AS vendor_cuci ON vendor_cuci.id_vendor = tabel_cuci.id_vendor
+            WHERE pembuatan.status_pembuatan = '3' GROUP BY pembuatan.id_inv ORDER BY pembuatan.tanggal_pembuatan DESC;
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+
+
 def create_inventory(inv: InvetoryPostBahan):
     conn = orm_sql()
     # inventory = conn.query(InventoryMdl).filter_by(

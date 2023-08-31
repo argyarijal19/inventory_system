@@ -73,7 +73,7 @@ async def get_all_data_jaitan():
 
 
 @inv.get("/data_jaitan_by_id/{id_produksi}")
-async def get_all_data_cucian(id_produksi: str):
+async def get_all_data_jaitan(id_produksi: str):
     data_jaitan = get_jaitan_by_id(id_produksi)
     if data_jaitan:
         return success_get_data(data_jaitan)
@@ -86,6 +86,15 @@ async def get_all_data_qc():
     data_jaitan = get_barang_QC()
     if data_jaitan:
         return success_get_data(data_jaitan)
+
+    return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap QC")
+
+
+@inv.get("/data_qc_for_select/")
+async def get_all_data_qc_select_id_inventory():
+    data_qc = get_qc_select()
+    if data_qc:
+        return success_get_data(data_qc)
 
     return get_data_null("Tidak Ada Produksi Yang Sedang Dalam Tahap QC")
 
