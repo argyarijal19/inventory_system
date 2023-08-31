@@ -12,7 +12,7 @@ def get_all_inventory() -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.id_ukuran, inventory.nama_produk, inventory.harga_produk, inventory.qty_final, UPPER(ukuran.nama_ukuran), bahan.nama_bahan FROM inventory JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran JOIN bahan ON bahan.id_bahan=inventory.id_bahan"
+        sql = "SELECT inventory.id_inv, inventory.id_bahan, inventory.id_ukuran, inventory.nama_produk, inventory.harga_produk, inventory.qty_final, UPPER(ukuran.nama_ukuran) AS nama_ukuran, bahan.nama_bahan FROM inventory JOIN ukuran ON ukuran.id_ukuran=inventory.id_ukuran JOIN bahan ON bahan.id_bahan=inventory.id_bahan"
         cursor.execute(sql)
         return cursor.fetchall()
 
