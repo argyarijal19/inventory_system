@@ -30,7 +30,7 @@ def get_pos_by_id(id_inv: int) -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT pos.id_pos, pos.id_inv, pos.total_qty, pos.total_income, inventory.nama_produk, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv WHERE pos.id_inv = '{id_inv}'"
+        sql = f"SELECT pos.id_pos, pos.id_inv, CONVERT(SUM(pos.total_qty), SIGNED) AS total_qty, CONVERT(SUM(pos.total_income), SIGNED) AS total_income, inventory.nama_produk, DATE_FORMAT(pos.tanggal_barang_out, '%d-%m-%Y') AS tanggal_barang_out, inventory.harga_produk FROM pos JOIN inventory ON inventory.id_inv=pos.id_inv WHERE pos.id_inv = '{id_inv}' GROUP BY tanggal_barang_out"
         cursor.execute(sql)
         results = cursor.fetchall()
 
@@ -61,7 +61,7 @@ def cost_hari_ini():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         sql = """
             SELECT 
-                ((total_income_today - total_income_yesterday) / total_income_today) * 100 AS percentage_change 
+                LEAST(GREATEST(((total_income_today - total_income_yesterday) / total_income_today) * 100, -100), 100) AS percentage_change  
             FROM (
                 SELECT 
                     (SELECT SUM(total_income) FROM pos WHERE DATE(tanggal_barang_out) = CURDATE()) AS total_income_today,
@@ -78,7 +78,7 @@ def cost_bulan_ini():
         cursor = conn.cursor(pymysql.cursors.DictCursor)
         sql = """
             SELECT 
-                ((total_income_today - total_income_yesterday) / total_income_today) * 100 AS percentage_change 
+                LEAST(GREATEST(((total_income_today - total_income_yesterday) / total_income_today) * 100, -100), 100) AS percentage_change  
             FROM (
                 SELECT 
                     (SELECT SUM(total_income) FROM pos WHERE DATE_FORMAT(tanggal_barang_out, '%Y-%m') = DATE_FORMAT(CURDATE(), '%Y-%m')) AS total_income_today,
@@ -129,7 +129,7 @@ def create_pos(pos: Pos, total_income: int) -> int:
     conn = orm_sql()
     data = PosMdl(
         id_inv=pos.id_inv,
-        total_qty=pos.total_qty,
+        total_qty=1,
         total_income=total_income
     )
     conn.add(data)

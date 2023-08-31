@@ -24,6 +24,10 @@ class CreateInventory(BaseModel):
     id_inv: str
 
 
+class CretaeQC(BaseModel):
+    id_produksi: str
+
+
 class CreateCuci(BaseModel):
     id_produksi: str
     id_vendor: int

@@ -97,8 +97,8 @@ async def summary_total_penjualan_per_bulan():
 async def create_pos_data(pos: Pos):
     data_inv = get_inventory_by_id(pos.id_inv)
     if data_inv:
-        total_income = pos.total_qty * data_inv["harga_produk"]
-        result_qty = data_inv["qty_final"] - pos.total_qty
+        total_income = 1 * data_inv["harga_produk"]
+        result_qty = data_inv["qty_final"] - 1
         if result_qty < 0:
             nama_produk = data_inv["nama_produk"]
             id_produk = data_inv["id_inv"]

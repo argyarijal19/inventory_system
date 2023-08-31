@@ -128,3 +128,23 @@ async def update_data_cuci(cucian: CreateCuci):
             return post_data_fail("Produksi Ini belum Melalui Tahap Penjahitan")
     else:
         return post_data_fail("ID Produksi Tidak Ditemukan")
+
+
+@produksi.put("/create_qc")
+async def update_data_qc(qc: CretaeQC):
+    data_produksi = get_produksi_by_id(qc.id_produksi)
+    if data_produksi:
+        status_pem = data_produksi[0]["status_pembuatan"]
+        if status_pem == "2":
+            try:
+                update_data = create_qc(qc)
+                if update_data:
+                    return success_post_data(1, "Berhasil Update Data")
+
+                return success_post_data(1, "Berhasil Update qc")
+            except IntegrityError:
+                return post_data_fail("Data Vendor Tidak Ditemukan")
+        else:
+            return post_data_fail("Produksi Ini belum Melalui Tahap Pencucian")
+    else:
+        return post_data_fail("ID Produksi Tidak Ditemukan")

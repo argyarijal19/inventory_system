@@ -89,8 +89,8 @@ def get_cucian_by_id(produksi_id: str) -> list:
                 pembuatan.status_pembuatan,
                 pembuatan.qty_pembuatan,
                 UPPER(ukuran.nama_ukuran) AS nama_ukuran,
-                DATE(pembuatan.tanggal_pembuatan) AS tanggal_pembuatan,
-                DATE(pembuatan.tanggal_selesai) AS selesai_pembuatan,
+                DATE_FORMAT(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
+                STR_TO_DATE(pembuatan.tanggal_selesai, '%d-%m-%Y') AS selesai_pembuatan,
                 vendor_jait.nama_vendor AS vendor_jait,
                 vendor_cuci.nama_vendor AS vendor_cuci
             FROM pembuatan
@@ -100,42 +100,25 @@ def get_cucian_by_id(produksi_id: str) -> list:
             LEFT JOIN tabel_cuci ON tabel_cuci.id_produksi = pembuatan.id_produksi
             LEFT JOIN vendor AS vendor_jait ON vendor_jait.id_vendor = tabel_jait.id_vendor
             LEFT JOIN vendor AS vendor_cuci ON vendor_cuci.id_vendor = tabel_cuci.id_vendor
-            WHERE pembuatan.id_produksi = '{}';
+            WHERE pembuatan.id_produksi = '{}' AND pembuatan.status_pembuatan = '2';
         """.format(produksi_id)
         cursor.execute(query)
-        results = cursor.fetchall()
-
-        for result in results:
-            result["tanggal_pembuatan"] = datetime.strftime(
-                result["tanggal_pembuatan"], "%d-%m-%Y")
-
-            if result["selesai_pembuatan"] is not None:
-                result["selesai_pembuatan"] = datetime.strftime(
-                    result["selesai_pembuatan"], "%d-%m-%Y")
-
-        return results
+        return cursor.fetchall()
 
 
 def get_barang_jaitan():
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas, SUM(qty_inventory) AS total_selesai_cuci, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan WHERE status_pembuatan = '1' GROUP BY Id_produksi"
+        sql = "SELECT pembuatan.id_produksi, COUNT(pembuatan.id_inv) AS total_produk, SUM(pembuatan.qty_pembuatan) AS total_quantitas, pembuatan.tanggal_pembuatan, pembuatan.status_pembuatan, vendor.nama_vendor FROM pembuatan JOIN tabel_jait ON tabel_jait.id_produksi=pembuatan.id_produksi JOIN vendor ON vendor.id_vendor=tabel_jait.id_vendor WHERE status_pembuatan = '1' GROUP BY Id_produksi"
         cursor.execute(sql)
         results = cursor.fetchall()
 
         # Convert Decimal values to string
         for result in results:
-            result['total_quantitas'] = str(result['total_quantitas'])
+            result['total_quantitas'] = int(result['total_quantitas'])
             result["tanggal_pembuatan"] = datetime.strftime(
                 result["tanggal_pembuatan"], "%d-%m-%Y")
-            result['total_selesai_cuci'] = str(result['total_selesai_cuci'])
-
-            if result["tanggal_selesai"] is not None:
-                result["tanggal_selesai"] = datetime.strftime(
-                    result["tanggal_selesai"], "%d-%m-%Y")
-            else:
-                result["tanggal_selesai"] = None
 
         return results
 
@@ -152,8 +135,7 @@ def get_jaitan_by_id(produksi_id: str) -> list:
                 pembuatan.status_pembuatan,
                 pembuatan.qty_pembuatan,
                 UPPER(ukuran.nama_ukuran) AS nama_ukuran,
-                STR_TO_DATE(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
-                STR_TO_DATE(pembuatan.tanggal_selesai, '%d-%m-%Y') AS selesai_pembuatan,
+                DATE_FORMAT(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
                 vendor_jait.nama_vendor AS vendor_jait,
                 vendor_cuci.nama_vendor AS vendor_cuci
             FROM pembuatan
@@ -169,10 +151,61 @@ def get_jaitan_by_id(produksi_id: str) -> list:
         return cursor.fetchall()
 
 
+def get_barang_QC():
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        sql = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan WHERE status_pembuatan = '3' GROUP BY Id_produksi"
+        cursor.execute(sql)
+        results = cursor.fetchall()
+
+        # Convert Decimal values to string
+        for result in results:
+            result['total_quantitas'] = int(result['total_quantitas'])
+            result["tanggal_pembuatan"] = datetime.strftime(
+                result["tanggal_pembuatan"], "%d-%m-%Y")
+
+            if result["tanggal_selesai"] is not None:
+                result["tanggal_selesai"] = datetime.strftime(
+                    result["tanggal_selesai"], "%d-%m-%Y")
+            else:
+                result["tanggal_selesai"] = None
+
+        return results
+
+
+def get_qc_by_id(produksi_id: str) -> list:
+    conn = Db_Mysql()
+    with conn:
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+        query = """
+            SELECT
+                inventory.id_inv,
+                pembuatan.id_produksi,
+                inventory.nama_produk,
+                pembuatan.status_pembuatan,
+                pembuatan.qty_pembuatan,
+                UPPER(ukuran.nama_ukuran) AS nama_ukuran,
+                DATE_FORMAT(pembuatan.tanggal_pembuatan, '%d-%m-%Y') AS tanggal_pembuatan,
+                vendor_jait.nama_vendor AS vendor_jait,
+                vendor_cuci.nama_vendor AS vendor_cuci
+            FROM pembuatan
+            JOIN inventory ON inventory.id_inv = pembuatan.id_inv
+            LEFT JOIN ukuran ON inventory.id_ukuran = ukuran.id_ukuran
+            LEFT JOIN tabel_jait ON tabel_jait.id_produksi = pembuatan.id_produksi
+            LEFT JOIN tabel_cuci ON tabel_cuci.id_produksi = pembuatan.id_produksi
+            LEFT JOIN vendor AS vendor_jait ON vendor_jait.id_vendor = tabel_jait.id_vendor
+            LEFT JOIN vendor AS vendor_cuci ON vendor_cuci.id_vendor = tabel_cuci.id_vendor
+            WHERE pembuatan.id_produksi = '{}' AND pembuatan.status_pembuatan = '3';
+        """.format(produksi_id)
+        cursor.execute(query)
+        return cursor.fetchall()
+
+
 def create_inventory(inv: InvetoryPostBahan):
     conn = orm_sql()
-    inventory = conn.query(InventoryMdl).filter_by(
-        id_inv=inv.id_inventory.upper()).first()
+    # inventory = conn.query(InventoryMdl).filter_by(
+    #     id_inv=inv.id_inventory.upper()).first()
     data = InventoryMdl(
         id_inv=inv.id_inventory.upper(),
         id_bahan=inv.id_bahan,

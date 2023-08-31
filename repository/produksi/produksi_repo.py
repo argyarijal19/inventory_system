@@ -13,7 +13,7 @@ def get_produksi() -> list:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        query = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas,  SUM(qty_inventory) AS total_quantitas_sudah_digudang, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan GROUP BY Id_produksi"
+        query = "SELECT id_produksi, COUNT(id_inv) AS total_produk, SUM(qty_pembuatan) AS total_quantitas,  SUM(qty_inventory) AS total_quantitas_sudah_digudang, tanggal_pembuatan, tanggal_selesai, status_pembuatan FROM pembuatan GROUP BY Id_produksi ORDER BY tanggal_pembuatan DESC"
         cursor.execute(query)
         results = cursor.fetchall()
 
@@ -64,7 +64,7 @@ def get_status_pebuatan(id_inv: str) -> dict:
     conn = Db_Mysql()
     with conn:
         cursor = conn.cursor(pymysql.cursors.DictCursor)
-        sql = f"SELECT id_produksi, status_pembuatan FROM pembuatan WHERE id_inv = '{id_inv}' AND status_pembuatan = '2'"
+        sql = f"SELECT id_produksi, status_pembuatan FROM pembuatan WHERE id_inv = '{id_inv}' AND status_pembuatan = '3'"
         cursor.execute(sql)
         return cursor.fetchone()
 
@@ -102,6 +102,8 @@ def create_produksi(prod: ProduksiScm):
     conn = orm_sql()
 
     date_object = datetime.strptime(prod.tanggal_pembuatan, "%d-%m-%Y")
+    current_time = datetime.now().time()
+    date_input = datetime.combine(date_object.date(), current_time)
     data_jahitan = conn.query(JahitMdl).filter_by(
         id_produksi=prod.id_produksi).first()
 
@@ -112,7 +114,7 @@ def create_produksi(prod: ProduksiScm):
         data = PembuatanMdl(
             id_produksi=prod.id_produksi,
             id_inv=prod.id_inv,
-            tanggal_pembuatan=date_object,
+            tanggal_pembuatan=date_input,
             qty_pembuatan=prod.qty_pembuatan,
             status_pembuatan='1'
         )
@@ -156,31 +158,26 @@ def create_produksi(prod: ProduksiScm):
 def create_inventory(inv: CreateInventory):
     conn = orm_sql()
     data_pembuatan = conn.query(PembuatanMdl).filter_by(
-        id_inv=inv.id_inv, status_pembuatan="2").first()
+        id_inv=inv.id_inv, status_pembuatan="3").first()
 
     data_inventory = conn.query(InventoryMdl).filter_by(
         id_inv=inv.id_inv.upper()).first()
 
     if data_inventory and data_pembuatan:
         data_pembuatan.status_inventory = "1"
-        if data_inventory.qty_final == 0 or data_inventory.qty_final is None:
-            data_inventory.qty_final = 1
+
+        if data_inventory.qty_final is None:
+            data_inventory.qty_final = data_pembuatan.qty_pembuatan
         else:
             data_inventory.qty_final = int(
-                data_inventory.qty_final) + 1
+                data_inventory.qty_final) + int(data_pembuatan.qty_pembuatan)
 
-        if data_pembuatan.qty_inventory is not None:
-            data_pembuatan.qty_inventory = int(
-                data_pembuatan.qty_inventory) + 1
-            if data_pembuatan.qty_inventory == data_pembuatan.qty_pembuatan:
-                data_pembuatan.status_pembuatan = "3"
-                data_pembuatan.tanggal_selesai = datetime.now().date()
-
-        else:
-            data_pembuatan.qty_inventory = 1
+        if data_pembuatan.qty_inventory is None:
+            data_pembuatan.qty_inventory = data_pembuatan.qty_pembuatan
+            data_pembuatan.tanggal_selesai = datetime.now().date()
 
         conn.commit()
-        return data_pembuatan
+        return True
 
     return False
 
@@ -206,6 +203,22 @@ def create_cucian(cuci: CreateCuci):
     if data_produksi:
         stmt = update(PembuatanMdl).where(PembuatanMdl.id_produksi ==
                                           cuci.id_produksi).values(status_pembuatan="2")
+        conn.execute(stmt)
+        conn.commit()
+        return True
+    else:
+        return False
+
+
+def create_qc(cuci: CretaeQC):
+    conn = orm_sql()
+
+    data_produksi = conn.query(PembuatanMdl).filter(
+        PembuatanMdl.id_produksi == cuci.id_produksi.upper()).all()
+
+    if data_produksi:
+        stmt = update(PembuatanMdl).where(PembuatanMdl.id_produksi ==
+                                          cuci.id_produksi).values(status_pembuatan="3")
         conn.execute(stmt)
         conn.commit()
         return True
