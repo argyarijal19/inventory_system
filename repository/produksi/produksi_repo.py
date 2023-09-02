@@ -164,7 +164,7 @@ def create_inventory(inv: CreateInventory):
         id_inv=inv.id_inv.upper()).first()
 
     if data_inventory and data_pembuatan:
-        data_pembuatan.status_inventory = "1"
+        data_pembuatan.status_inventory = "4"
 
         if data_inventory.qty_final is None:
             data_inventory.qty_final = data_pembuatan.qty_pembuatan
