@@ -1,13 +1,12 @@
 version: '3'
 services:
   backend:
-   environment:
-    TZ: "Asia/Jakarta"
     container_name: rockmaker-backend
     restart: unless-stopped
-
     build:
       context: ./
+    environment:
+      TZ: "Asia/Jakarta"
     ports:
       - "8000:8000" 
   nginx:
