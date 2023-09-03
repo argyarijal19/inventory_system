@@ -14,6 +14,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./conf/nginx.conf:/etc/nginx/conf.d/ # Gantilah path sesuai dengan lokasi file nginx.conf Anda
+      - ./conf/nginx.conf:/etc/nginx/conf.d/nginx.conf # Gantilah path sesuai dengan lokasi file nginx.conf Anda
     depends_on:
       - backend
