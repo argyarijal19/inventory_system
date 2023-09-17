@@ -87,7 +87,7 @@ async def update_inventory(inv: CreateInventory):
     try:
         status_pem = get_status_pebuatan(inv.id_inv)
         if status_pem is not None:
-            create_data = create_inventory(inv)
+            create_data = create_inventory(inv.id_inv)
             if create_data:
                 return success_post_data(1, "Produk Berhasil Masuk Ke gudang")
             else:
